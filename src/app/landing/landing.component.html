@@ -1,1 +1,308 @@
-<p>landing works!</p>
+<!-- NAV -->
+<nav class="landing-nav surface-overlay border-bottom-1 surface-border">
+  <div class="landing-nav__logo">
+    <span class="landing-nav__dot"></span>
+    FowieInvent
+  </div>
+  <ul class="list-none m-0 p-0 hidden md:flex gap-4">
+    <li><a href="#problema" class="text-color-secondary no-underline text-xs uppercase hover:text-color transition-colors">Problema</a></li>
+    <li><a href="#modulos"  class="text-color-secondary no-underline text-xs uppercase hover:text-color transition-colors">Módulos</a></li>
+    <li><a href="#planes"   class="text-color-secondary no-underline text-xs uppercase hover:text-color transition-colors">Planes</a></li>
+    <li><a href="#equipo"   class="text-color-secondary no-underline text-xs uppercase hover:text-color transition-colors">Equipo</a></li>
+  </ul>
+  <p-button label="Solicitar acceso" size="small" (onClick)="onRequestAccess()"></p-button>
+</nav>
+
+<!-- HERO -->
+<section class="landing-hero surface-ground">
+  <div class="landing-hero__inner">
+    <p-tag value="En desarrollo — v0.2" severity="success" styleClass="mb-4"></p-tag>
+
+    <h1 class="text-6xl font-bold line-height-2 mt-3 mb-3 text-color">
+      Inventario sin<br />
+      <span class="text-primary">cuotas imposibles.</span>
+    </h1>
+
+    <p class="text-color-secondary text-lg line-height-3 mb-5" style="max-width:34rem">
+      FowieInvent democratiza el control de inventario para pequeños negocios.
+      Funcional, accesible, y construido para crecer contigo.
+    </p>
+
+    <div class="flex gap-3 align-items-center flex-wrap mb-6">
+      <p-button label="Solicitar acceso anticipado" icon="pi pi-arrow-right" iconPos="right" (onClick)="onRequestAccess()"></p-button>
+      <p-button label="Ver módulos" icon="pi pi-chevron-down" iconPos="right" severity="secondary" [outlined]="true" (onClick)="scrollTo('modulos')"></p-button>
+    </div>
+
+    <p-divider></p-divider>
+
+    <div class="grid mt-3">
+      @for (stat of heroStats; track stat.val) {
+        <div class="col-6 md:col-3">
+          <div class="text-2xl font-bold text-color mb-1">{{ stat.val }}</div>
+          <div class="text-xs text-color-secondary uppercase">{{ stat.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="px-4 md:px-6 py-4">
+  <p-card styleClass="reveal surface-section border-1 surface-border">
+    <ng-template pTemplate="content">
+      <p class="text-xl font-medium text-color line-height-3 mb-3">
+        "Los sistemas actuales cobran cuotas impagables para negocios pequeños,
+        limitando su crecimiento. Eso termina aquí."
+      </p>
+      <p class="text-sm text-color-secondary m-0">
+        — Principio de diseño · FowieInvent por ShaulaTec
+      </p>
+    </ng-template>
+  </p-card>
+</div>
+
+<!-- PROBLEMA -->
+<section id="problema" class="px-4 md:px-6 py-6 surface-ground">
+  <span class="text-primary text-xs font-bold uppercase">El problema</span>
+  <h2 class="text-4xl font-bold text-color mt-2 mb-2">La hoja de Excel<br />tiene un límite.</h2>
+  <p class="text-color-secondary mb-5">
+    Millones de pequeños negocios gestionan su inventario en papel o en hojas de cálculo.
+    Funciona hasta que no funciona.
+  </p>
+
+  <div class="reveal grid">
+    @for (item of problemas; track item.title) {
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card styleClass="h-full surface-section border-1 surface-border">
+          <ng-template pTemplate="header">
+            <div class="px-4 pt-4 text-3xl">{{ item.icon }}</div>
+          </ng-template>
+          <ng-template pTemplate="title">{{ item.title }}</ng-template>
+          <ng-template pTemplate="content">
+            <p class="text-color-secondary text-sm line-height-3 m-0">{{ item.desc }}</p>
+          </ng-template>
+        </p-card>
+      </div>
+    }
+  </div>
+</section>
+
+<p-divider styleClass="mx-4 md:mx-6"></p-divider>
+
+<!-- MÓDULOS -->
+<section id="modulos" class="px-4 md:px-6 py-6">
+  <span class="text-primary text-xs font-bold uppercase">Arquitectura modular</span>
+  <h2 class="text-4xl font-bold text-color mt-2 mb-2">Empieza pequeño.<br />Crece a tu ritmo.</h2>
+  <p class="text-color-secondary mb-5">
+    FowieInvent es el primer módulo de un ecosistema pensado para convertirse en un ERP completo.
+    Contrata solo lo que necesitas.
+  </p>
+
+  <div class="reveal grid">
+    @for (mod of modules; track mod.num) {
+      <div class="col-12 md:col-4">
+        <p-card [styleClass]="'h-full surface-section border-1 ' + (mod.active ? 'border-primary' : 'surface-border')">
+          <ng-template pTemplate="title">
+            <div class="flex align-items-center justify-content-between mb-2">
+              <span>{{ mod.title }}</span>
+              <p-badge [value]="mod.num" [severity]="mod.active ? 'success' : 'secondary'"></p-badge>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            <p-tag
+              [value]="mod.status"
+              [severity]="mod.active ? 'success' : 'secondary'"
+              [icon]="mod.active ? 'pi pi-spin pi-spinner' : 'pi pi-clock'">
+            </p-tag>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p class="text-color-secondary text-sm line-height-3 mb-3">{{ mod.desc }}</p>
+            <ul class="list-none m-0 p-0 flex flex-column gap-2">
+              @for (f of mod.features; track f) {
+                <li class="flex align-items-center gap-2 text-sm text-color-secondary">
+                  <i class="pi pi-minus text-xs"></i>{{ f }}
+                </li>
+              }
+            </ul>
+          </ng-template>
+        </p-card>
+      </div>
+    }
+  </div>
+</section>
+
+<p-divider styleClass="mx-4 md:mx-6"></p-divider>
+
+<!-- PLANES -->
+<section id="planes" class="px-4 md:px-6 py-6 surface-ground">
+  <span class="text-primary text-xs font-bold uppercase">Planes y precios</span>
+  <h2 class="text-4xl font-bold text-color mt-2 mb-2">Transparente<br />desde el primer día.</h2>
+  <p class="text-color-secondary mb-5">Sin costos ocultos. Sin funciones bloqueadas arbitrariamente. Paga por lo que usas.</p>
+
+  <div class="reveal grid">
+    @for (plan of plans; track plan.name) {
+      <div class="col-12 md:col-4">
+        <p-card [styleClass]="'h-full surface-section border-1 ' + (plan.featured ? 'border-primary' : 'surface-border')">
+          <ng-template pTemplate="header">
+            @if (plan.featured) {
+              <div class="flex justify-content-end px-3 pt-3">
+                <p-badge value="POPULAR" severity="success"></p-badge>
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="title">
+            <span class="text-xs font-normal text-color-secondary uppercase">{{ plan.name }}</span><br />
+            <span class="text-4xl font-bold text-color">{{ plan.price }}</span>
+            <span class="text-base font-normal text-color-secondary ml-1">{{ plan.currency }}</span>
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            <span class="text-xs text-color-secondary">{{ plan.cadencia }}</span>
+          </ng-template>
+          <ng-template pTemplate="content">
+            <p-divider></p-divider>
+            <ul class="list-none m-0 p-0 flex flex-column gap-2 mb-4">
+              @for (f of plan.features; track f) {
+                <li class="flex align-items-start gap-2 text-sm text-color-secondary">
+                  <i class="pi pi-check text-primary text-xs mt-1 flex-shrink-0"></i>{{ f }}
+                </li>
+              }
+            </ul>
+            @if (plan.ctaStyle === 'primary') {
+              <p-button [label]="plan.cta" styleClass="w-full justify-content-center" (onClick)="onRequestAccess()"></p-button>
+            } @else {
+              <p-button [label]="plan.cta" styleClass="w-full justify-content-center" severity="secondary" [outlined]="true"></p-button>
+            }
+          </ng-template>
+        </p-card>
+      </div>
+    }
+  </div>
+</section>
+
+<p-divider styleClass="mx-4 md:mx-6"></p-divider>
+
+<!-- EQUIPO -->
+<section id="equipo" class="px-4 md:px-6 py-6">
+  <span class="text-primary text-xs font-bold uppercase">El equipo</span>
+  <h2 class="text-4xl font-bold text-color mt-2 mb-2">Construido por quienes<br />ya lo han hecho.</h2>
+  <p class="text-color-secondary mb-5">
+    Dos desarrolladores de Morelia con sistemas reales en producción. Sin teoría, solo entrega.
+  </p>
+
+  <div class="reveal grid">
+    @for (member of team; track member.name) {
+      <div class="col-12 md:col-6">
+        <p-card styleClass="h-full surface-section border-1 surface-border">
+          <ng-template pTemplate="content">
+
+            <div class="flex align-items-center gap-3 mb-4">
+              <p-avatar [label]="member.initials" size="xlarge" shape="circle" styleClass="bg-primary-100 text-primary-700"></p-avatar>
+              <div>
+                <div class="text-lg font-bold text-color">{{ member.name }}</div>
+                <div class="text-primary text-sm font-medium">{{ member.role }}</div>
+                <div class="text-color-secondary text-xs mt-1">
+                  <i class="pi pi-map-marker mr-1"></i>Morelia, Michoacán
+                </div>
+              </div>
+            </div>
+
+            <p class="text-color-secondary text-sm line-height-3 mb-4">{{ member.bio }}</p>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+              @for (skill of member.skills; track skill) {
+                <p-tag [value]="skill" severity="secondary"></p-tag>
+              }
+            </div>
+
+            <p-divider></p-divider>
+
+            <div class="text-xs font-bold text-color-secondary uppercase mb-3">
+              <i class="pi pi-box mr-1"></i>Proyectos en producción
+            </div>
+            <div class="flex flex-column gap-2 mb-4">
+              @for (proj of member.projects; track proj.name) {
+                <div class="flex align-items-center justify-content-between surface-ground border-round p-2">
+                  <span class="text-sm text-color">{{ proj.name }}</span>
+                  <p-badge [value]="proj.where" severity="secondary"></p-badge>
+                </div>
+              }
+            </div>
+
+            <div class="flex gap-2 flex-wrap">
+              @if (member.github) {
+                <p-button
+                  [label]="'GitHub · ' + member.githubHandle"
+                  icon="pi pi-github"
+                  severity="secondary"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="openLink(member.github!)">
+                </p-button>
+              }
+              @if (member.email) {
+                <p-button
+                  [label]="member.email"
+                  icon="pi pi-envelope"
+                  severity="secondary"
+                  [outlined]="true"
+                  size="small"
+                  (onClick)="openLink('mailto:' + member.email)">
+                </p-button>
+              }
+            </div>
+
+          </ng-template>
+        </p-card>
+      </div>
+    }
+  </div>
+</section>
+
+<p-divider styleClass="mx-4 md:mx-6"></p-divider>
+
+<!-- SOBRE + STACK -->
+<section id="sobre" class="px-4 md:px-6 py-6 surface-ground">
+  <div class="grid">
+    <div class="col-12 md:col-5 mb-4">
+      <span class="text-primary text-xs font-bold uppercase">Sobre el proyecto</span>
+      <h2 class="text-4xl font-bold text-color mt-2 mb-3">Construido con<br />un propósito claro.</h2>
+      <p class="text-color-secondary text-sm line-height-3 mb-3">
+        FowieInvent es un proyecto de <span class="text-color font-medium">ShaulaTec</span>,
+        desarrollado por el equipo que ya entregó
+        <span class="text-color font-medium">irya-invent</span> para el Instituto de
+        Radioastronomía de la UNAM y <span class="text-color font-medium">SIDEC</span>
+        para la Contraloría Municipal de Morelia — sistemas activos en producción.
+      </p>
+      <p class="text-color-secondary text-sm line-height-3 mb-4">
+        La filosofía es simple: <span class="text-color font-medium">Sic parvis magna</span>.
+        La grandeza viene de pequeños comienzos.
+      </p>
+      <p-button label="GitHub → YalukR" icon="pi pi-github" severity="secondary" [outlined]="true" (onClick)="openLink('https://github.com/YalukR')"></p-button>
+    </div>
+
+    <div class="col-12 md:col-7">
+      <p-panel header="Stack tecnológico" styleClass="reveal">
+        <div class="flex flex-column gap-2">
+          @for (row of techStack; track row.label) {
+            <div class="flex align-items-center justify-content-between surface-ground border-round px-3 py-2">
+              <span class="text-xs font-bold text-color-secondary uppercase">{{ row.label }}</span>
+              <span class="text-sm text-primary font-medium">{{ row.val }}</span>
+            </div>
+          }
+        </div>
+      </p-panel>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="surface-section border-top-1 surface-border px-4 md:px-6 py-5">
+  <div class="flex flex-column md:flex-row align-items-center justify-content-between gap-3">
+    <span class="text-xl font-bold text-color">FowieInvent</span>
+    <span class="text-sm text-color-secondary">© 2026 ShaulaTec · Morelia, México</span>
+    <div class="flex align-items-center gap-2">
+      <p-tag value="AGPL" severity="success"></p-tag>
+      <span class="text-sm text-color-secondary">Código abierto · Servicio privado</span>
+    </div>
+  </div>
+</footer>

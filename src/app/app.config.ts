@@ -12,10 +12,8 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: Aura,
-        options: {
-          darkModeSelector: '.dark-mode', // o 'system'
-        }
+        options: { darkModeSelector: '.p-dark' }
       }
     }),
-  ]
+  ],
 };

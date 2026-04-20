@@ -1,0 +1,66 @@
+<!-- TOPBAR -->
+<p-toolbar styleClass="layout-topbar surface-overlay border-bottom-1 surface-border px-4">
+  <ng-template pTemplate="start">
+    <div class="flex align-items-center gap-2">
+      <span class="layout-topbar__dot"></span>
+      <span class="text-xl font-bold text-color">FowieInvent</span>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="end">
+    <div class="flex align-items-center gap-2">
+      <p-button
+        icon="pi pi-palette"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        pTooltip="Configurar tema"
+        (onClick)="configVisible = true">
+      </p-button>
+      <p-avatar label="IY" shape="circle" styleClass="bg-primary-100 text-primary-700 font-bold"></p-avatar>
+    </div>
+  </ng-template>
+</p-toolbar>
+
+<!-- CONTENIDO -->
+<div class="layout-main">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- DRAWER: Configurador de tema -->
+<p-drawer
+  [(visible)]="configVisible"
+  header="Configuración de tema"
+  position="right"
+  styleClass="layout-config-drawer"
+  [style]="{ width: '22rem' }">
+
+  <!-- Dark mode -->
+  <div class="flex align-items-center justify-content-between mb-4">
+    <div>
+      <div class="font-medium text-color mb-1">Modo oscuro</div>
+      <div class="text-sm text-color-secondary">Alternar entre claro y oscuro</div>
+    </div>
+    <p-toggleswitch [(ngModel)]="isDarkMode" (onChange)="toggleDarkMode()"></p-toggleswitch>
+  </div>
+
+  <p-divider></p-divider>
+
+  <!-- Color primario -->
+  <div class="mb-2 font-medium text-color">Color primario</div>
+  <div class="mb-4 text-sm text-color-secondary">{{ selectedPrimary.name | titlecase }}</div>
+
+  <div class="flex flex-wrap gap-3">
+    @for (color of primaryColors; track color.name) {
+      <button
+        class="layout-color-swatch"
+        [class.layout-color-swatch--active]="selectedPrimary.name === color.name"
+        [style.background]="color.palette['500']"
+        [pTooltip]="color.name | titlecase"
+        tooltipPosition="top"
+        (click)="selectPrimary(color)">
+      </button>
+    }
+  </div>
+
+</p-drawer>

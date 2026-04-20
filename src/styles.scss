@@ -2,3 +2,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+// Variables del design system FowieInvent
+:root {
+  --fi-bg:      #0a0a0b;
+  --fi-bg2:     #111114;
+  --fi-bg3:     #18181c;
+  --fi-border:  rgba(255,255,255,0.07);
+  --fi-border2: rgba(255,255,255,0.12);
+  --fi-text:    #f0ede8;
+  --fi-muted:   #7a7870;
+  --fi-accent:  #c8f57a;
+  --fi-accent2: #8de0b0;
+  --fi-accent3: #f5c842;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--fi-bg);
+  color: var(--fi-text);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+// Animación reveal (scroll)
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

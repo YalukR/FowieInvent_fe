@@ -1,0 +1,49 @@
+// layout estructural — sin colores hardcoded
+.layout-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 4rem;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--p-primary-color);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+}
+
+.layout-main {
+  padding-top: 4rem; // compensa topbar fixed
+  min-height: 100vh;
+}
+
+// Swatches del color picker
+.layout-color-swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &--active {
+    border-color: var(--p-surface-border);
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

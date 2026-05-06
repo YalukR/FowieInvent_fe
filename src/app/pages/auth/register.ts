@@ -218,7 +218,7 @@ export class Register {
             password:       this.password,
             nombre_negocio: this.negocio,
         }).subscribe({
-            next: () => this.router.navigate(['/']),
+            next: () => this.router.navigate(['/sistema']),
             error: (msg: string) => {
                 this.error.set(msg);
                 this.loading.set(false);

@@ -24,7 +24,7 @@ export class Home {
             desc: 'Control de productos, movimientos, categorías y alertas de stock.',
             status: 'En desarrollo',
             active: true,
-            route: '/sistema/inventario',
+            route: '/system/inventory/i-dashboard',
         },
         {
             icon: 'pi-shopping-cart',

@@ -164,7 +164,7 @@ export class Landing implements OnInit, AfterViewInit {
   ];
 
   onRequestAccess(): void {
-    this.router.navigate(['/app/signin']);
+    this.router.navigate(['/auth/register']);
   }
 
   scrollTo(id: string): void {

@@ -1,0 +1,328 @@
+<!-- ═══════════════════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════════════════════ -->
+<nav class="l-nav">
+  <a class="l-nav__brand" (click)="scrollTo('hero')">
+    <span class="l-nav__dot"></span>
+    <span>FowieInvent</span>
+  </a>
+
+  <ul class="l-nav__links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#planes">Planes</a></li>
+    <li><a href="#equipo">Equipo</a></li>
+  </ul>
+
+  <p-button label="Solicitar acceso" size="small" (onClick)="onRequestAccess()">
+  </p-button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
+<section id="hero" class="l-hero">
+
+  <!-- Número decorativo de fondo -->
+  <span class="l-hero__bg-num" aria-hidden="true">01</span>
+
+  <div class="l-hero__inner">
+
+    <div class="l-hero__left">
+      <div class="l-hero__tag-row">
+        <p-tag value="v0.2 · En desarrollo" severity="success"></p-tag>
+        <span class="l-hero__byline">por ShaulaTec · Morelia</span>
+      </div>
+
+      <h1 class="l-hero__h1">
+        Inventario<br />
+        <em>sin cuotas</em><br />
+        imposibles.
+      </h1>
+
+      <p class="l-hero__sub">
+        FowieInvent democratiza el control de inventario para pequeños negocios.
+        Funcional, accesible y construido para crecer contigo.
+      </p>
+
+      <div class="l-hero__ctas">
+        <p-button label="Solicitar acceso anticipado" icon="pi pi-arrow-right" iconPos="right"
+          (onClick)="onRequestAccess()">
+        </p-button>
+        <p-button label="Ver módulos" severity="secondary" [outlined]="true" (onClick)="scrollTo('modulos')">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Stats verticales -->
+    <div class="l-hero__stats">
+      @for (stat of heroStats; track stat.val; let i = $index) {
+      <div class="l-stat" [class.l-stat--accent]="i === 2">
+        <span class="l-stat__val">{{ stat.val }}</span>
+        <span class="l-stat__label">{{ stat.label }}</span>
+      </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Cita al pie del hero -->
+  <div class="l-hero__quote">
+    <span class="l-hero__quote-mark">"</span>
+    <p>
+      Los sistemas actuales cobran cuotas impagables para negocios pequeños,
+      limitando su crecimiento. <strong>Eso termina aquí.</strong>
+    </p>
+    <span class="l-hero__quote-src">Principio de diseño · FowieInvent</span>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROBLEMA
+════════════════════════════════════════════════════════════ -->
+<section id="problema" class="l-section l-section--stripe">
+  <div class="l-container">
+
+    <header class="l-section__header fade-up">
+      <span class="l-label">El problema</span>
+      <h2 class="l-h2">La hoja de&nbsp;Excel<br />tiene un límite.</h2>
+      <p class="l-lead">Millones de pequeños negocios gestionan su inventario en papel o en hojas de cálculo. Funciona
+        hasta que no funciona.</p>
+    </header>
+
+    <div class="l-problems">
+      @for (item of problemas; track item.num) {
+      <div class="l-problem-card fade-up">
+        <span class="l-problem-card__num">{{ item.num }}</span>
+        <div class="l-problem-card__icon">
+          <i class="pi" [ngClass]="item.icon"></i>
+        </div>
+        <h3 class="l-problem-card__title">{{ item.title }}</h3>
+        <p class="l-problem-card__desc">{{ item.desc }}</p>
+      </div>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MÓDULOS
+════════════════════════════════════════════════════════════ -->
+<section id="modulos" class="l-section l-section--dark">
+  <div class="l-container">
+
+    <header class="l-section__header fade-up">
+      <span class="l-label">Arquitectura modular</span>
+      <h2 class="l-h2 l-h2--light">Empieza pequeño.<br />Crece a tu ritmo.</h2>
+
+    </header>
+
+    <div class="l-modules">
+      @for (mod of modules; track mod.num) {
+      <article class="l-module fade-up" [class.l-module--active]="mod.active">
+
+        <div class="l-module__header">
+          <div>
+            <span class="l-module__num">Módulo {{ mod.num }}</span>
+            <h3 class="l-module__title">{{ mod.title }}</h3>
+          </div>
+          <p-tag [value]="mod.status" [severity]="mod.active ? 'success' : 'secondary'"></p-tag>
+        </div>
+
+        <p class="l-module__desc">{{ mod.desc }}</p>
+
+        <ul class="l-module__features">
+          @for (f of mod.features; track f) {
+          <li>
+            <i class="pi pi-check" [class.text-primary]="mod.active"></i>
+            {{ f }}
+          </li>
+          }
+        </ul>
+
+      </article>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PLANES
+════════════════════════════════════════════════════════════ -->
+<section id="planes" class="l-section l-section--stripe">
+  <div class="l-container">
+
+    <header class="l-section__header fade-up">
+      <span class="l-label">Planes y precios</span>
+      <h2 class="l-h2">Transparente<br />desde el primer día.</h2>
+      <p class="l-lead">Sin costos ocultos. Sin funciones bloqueadas arbitrariamente.</p>
+    </header>
+
+    <div class="l-plans">
+      @for (plan of plans; track plan.name) {
+      <article class="l-plan fade-up" [class.l-plan--featured]="plan.featured">
+
+        @if (plan.featured) {
+        <div class="l-plan__badge">Popular</div>
+        }
+
+        <div class="l-plan__top">
+          <span class="l-plan__name">{{ plan.name }}</span>
+          <p class="l-plan__desc">{{ plan.desc }}</p>
+        </div>
+
+        <div class="l-plan__price">
+          <span class="l-plan__amount">{{ plan.price }}</span>
+          @if (plan.currency) {
+          <span class="l-plan__currency">{{ plan.currency }}</span>
+          }
+        </div>
+
+        <ul class="l-plan__features">
+          @for (f of plan.features; track f) {
+          <li>
+            <i class="pi pi-check-circle"></i>
+            {{ f }}
+          </li>
+          }
+        </ul>
+
+        <div class="l-plan__cta">
+          @if (plan.ctaStyle === 'primary') {
+          <p-button [label]="plan.cta" styleClass="w-full" (onClick)="onRequestAccess()"></p-button>
+          } @else {
+          <p-button [label]="plan.cta" styleClass="w-full" severity="secondary" [outlined]="true"></p-button>
+          }
+        </div>
+
+      </article>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     EQUIPO
+════════════════════════════════════════════════════════════ -->
+<section id="equipo" class="l-section l-section--dark">
+  <div class="l-container">
+
+    <header class="l-section__header fade-up">
+      <span class="l-label">El equipo</span>
+      <h2 class="l-h2 l-h2--light">Construido por quienes<br />ya lo han hecho.</h2>
+    </header>
+
+    <div class="l-team">
+      @for (member of team; track member.name) {
+      <article class="l-member fade-up">
+
+        <div class="l-member__header">
+          <div class="l-member__avatar">{{ member.initials }}</div>
+          <div>
+            <h3 class="l-member__name">{{ member.name }}</h3>
+            <span class="l-member__role">{{ member.role }}</span>
+            <div class="l-member__city">
+              <i class="pi pi-map-marker"></i> Morelia, Michoacán
+            </div>
+          </div>
+        </div>
+
+        <p class="l-member__bio">{{ member.bio }}</p>
+
+        <div class="l-member__skills">
+          @for (skill of member.skills; track skill) {
+          <span class="l-skill">{{ skill }}</span>
+          }
+        </div>
+
+        <div class="l-member__projects">
+          <span class="l-member__projects-label">Producción</span>
+          @for (proj of member.projects; track proj.name) {
+          <div class="l-member__project-row">
+            <span>{{ proj.name }}</span>
+            <span class="l-badge">{{ proj.where }}</span>
+          </div>
+          }
+        </div>
+
+        <div class="l-member__links">
+          @if (member.github) {
+          <button class="l-link-btn" (click)="openLink(member.github!)">
+            <i class="pi pi-github"></i> {{ member.githubHandle }}
+          </button>
+          }
+          @if (member.email) {
+          <button class="l-link-btn" (click)="openLink('mailto:' + member.email)">
+            <i class="pi pi-envelope"></i> {{ member.email }}
+          </button>
+          }
+        </div>
+
+      </article>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOBRE + STACK
+════════════════════════════════════════════════════════════ -->
+<section class="l-section l-section--dark">
+  <div class="l-container">
+    <div class="l-about">
+
+      <div class="l-about__left fade-up">
+        <span class="l-label l-label--light">Sobre el proyecto</span>
+        <h2 class="l-h2 l-h2--light">
+          <em>Sic parvis magna.</em><br />
+          Grandeza desde<br />pequeños comienzos.
+        </h2>
+        <p>
+          FowieInvent es un proyecto de <strong>ShaulaTec</strong>
+        </p>
+        <button class="l-link-btn l-link-btn--light" (click)="openLink('https://github.com/alejandraarredondo26')">
+          <i class="pi pi-github"></i> GitHub · AlejandraArredondo26
+        </button>
+        <button class="l-link-btn l-link-btn--light" (click)="openLink('https://github.com/valicapa')">
+          <i class="pi pi-github"></i> GitHub · Valicapa
+        </button>
+        <button class="l-link-btn l-link-btn--light" (click)="openLink('https://github.com/YalukR')">
+          <i class="pi pi-github"></i> GitHub · YalukR
+        </button>
+      </div>
+
+      <div class="l-about__stack fade-up">
+        <div class="l-stack-header">Stack tecnológico</div>
+        @for (row of techStack; track row.label; let odd = $odd) {
+        <div class="l-stack-row" [class.l-stack-row--odd]="odd">
+          <span class="l-stack-label">{{ row.label }}</span>
+          <span class="l-stack-val">{{ row.val }}</span>
+        </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════ -->
+<footer class="l-footer">
+  <div class="l-container l-footer__inner">
+    <div class="l-footer__brand">
+      <span class="l-nav__dot"></span>
+      <span>FowieInvent</span>
+    </div>
+    <span>© 2026 ShaulaTec · Morelia, México</span>
+    <div class="l-footer__right">
+      <p-tag value="AGPL" severity="success"></p-tag>
+      <span>Código abierto · Servicio privado</span>
+    </div>
+  </div>
+</footer>

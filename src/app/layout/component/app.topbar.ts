@@ -69,7 +69,8 @@ import { AuthService } from '@/app/core/service/auth.service';
                     }
 
                     <!-- Logout -->
-                    <button type="button" class="layout-topbar-action" (click)="logout()">
+                    <button type="button" class="layout-topbar-action" (click)="logout()"
+                        style="color: var(--p-red-500);">
                         <i class="pi pi-sign-out"></i>
                         <span>Salir</span>
                     </button>

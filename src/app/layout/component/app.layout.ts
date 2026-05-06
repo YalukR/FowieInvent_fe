@@ -3,20 +3,23 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppTopbar } from './app.topbar';
 import { AppSidebar } from './app.sidebar';
+import { AppSpeeddial } from './app.speeddial';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [CommonModule, AppTopbar, AppSidebar, AppSpeeddial, RouterModule, AppFooter],
     template: `<div class="layout-wrapper" [ngClass]="containerClass()">
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">
-            <div class="layout-main">
+            <div class="layout-main p-4 md:p-6" style="padding-top: 4rem;">
                 <router-outlet></router-outlet>
             </div>
+            <div class="layout-mask"></div>
+            <app-speeddial></app-speeddial>
             <app-footer></app-footer>
         </div>
         <div class="layout-mask"></div>

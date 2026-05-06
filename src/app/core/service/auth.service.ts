@@ -29,8 +29,8 @@ export interface AuthTokens {
 export interface AuthUser {
     id: string;
     email: string;
-    nombre: string;
-    apellido: string;
+    tenant: string;
+    rol: string;
 }
 
 export interface AuthResponse extends AuthTokens {
@@ -42,19 +42,19 @@ export interface AuthResponse extends AuthTokens {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-    private readonly ACCESS_KEY = 'fi_access';
+    private readonly ACCESS_KEY  = 'fi_access';
     private readonly REFRESH_KEY = 'fi_refresh';
-    private readonly USER_KEY = 'fi_user';
+    private readonly USER_KEY    = 'fi_user';
 
     // Signal reactivo — los componentes pueden leer `currentUser()` directamente
     private _currentUser = signal<AuthUser | null>(this.loadUser());
     readonly currentUser = this._currentUser.asReadonly();
-    readonly isLoggedIn = computed(() => !!this._currentUser());
+    readonly isLoggedIn  = computed(() => !!this._currentUser());
 
     constructor(
         private http: HttpClient,
         private router: Router,
-    ) { }
+    ) {}
 
     // ── Login ─────────────────────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ export class AuthService {
     // ── Private ───────────────────────────────────────────────────────────────
 
     private saveSession(res: AuthResponse): void {
-        localStorage.setItem(this.ACCESS_KEY, res.access);
+        localStorage.setItem(this.ACCESS_KEY,  res.access);
         localStorage.setItem(this.REFRESH_KEY, res.refresh);
         if (res.user) {
             localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));

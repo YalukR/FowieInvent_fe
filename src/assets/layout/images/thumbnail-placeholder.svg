@@ -1,0 +1,16 @@
+<svg width="160" height="120" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sin imagen disponible">
+  <defs>
+    <linearGradient id="thumbGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d9dce3" />
+      <stop offset="100%" stop-color="#c0c4cf" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="120" rx="12" fill="url(#thumbGradient)" />
+  <g fill="none" stroke="#8a909f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M30 82l24-30 22 20 16-18 38 40H30z" />
+    <circle cx="56" cy="44" r="10" />
+  </g>
+  <text x="50%" y="94" text-anchor="middle" font-size="12" fill="#747b8c" font-family="'Segoe UI', Arial, sans-serif">
+    Sin imagen
+  </text>
+</svg>

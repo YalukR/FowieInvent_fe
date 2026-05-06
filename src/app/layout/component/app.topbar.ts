@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { DrawerModule } from 'primeng/drawer';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DrawerModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -42,20 +43,18 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-                <div class="relative">
-                    <button
-                        class="layout-topbar-action layout-topbar-action-highlight"
-                        pStyleClass="@next"
-                        enterFromClass="hidden"
-                        enterActiveClass="animate-scalein"
-                        leaveToClass="hidden"
-                        leaveActiveClass="animate-fadeout"
-                        [hideOnOutsideClick]="true"
-                    >
-                        <i class="pi pi-palette"></i>
-                    </button>
-                    <app-configurator />
-                </div>
+<div class="layout-config-menu">
+    <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+        <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+    </button>
+    <button type="button" class="layout-topbar-action layout-topbar-action-highlight" (click)="configVisible = true">
+        <i class="pi pi-palette"></i>
+    </button>
+</div>
+
+<p-drawer [(visible)]="configVisible" header="Configuración de tema" position="right">
+    <app-configurator />
+</p-drawer>
             </div>
 
             <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
@@ -84,6 +83,7 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 export class AppTopbar {
     items!: MenuItem[];
 
+    configVisible = false;
     layoutService = inject(LayoutService);
 
     toggleDarkMode() {

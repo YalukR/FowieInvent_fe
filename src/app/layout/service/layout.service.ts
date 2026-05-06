@@ -17,17 +17,30 @@ interface LayoutState {
     activePath: string | null;
 }
 
+const STORAGE_KEY = 'fowieinvent-layout-config';
+
 @Injectable({
     providedIn: 'root'
 })
 export class LayoutService {
-    layoutConfig = signal<LayoutConfig>({
+
+    private savedConfig(): LayoutConfig {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) return { ...this.defaultConfig, ...JSON.parse(raw) };
+        } catch {}
+        return this.defaultConfig;
+    }
+
+    private defaultConfig: LayoutConfig = {
         preset: 'Aura',
         primary: 'emerald',
         surface: null,
         darkTheme: false,
         menuMode: 'static'
-    });
+    };
+
+    layoutConfig = signal<LayoutConfig>(this.savedConfig());
 
     layoutState = signal<LayoutState>({
         staticMenuDesktopInactive: false,
@@ -39,17 +52,11 @@ export class LayoutService {
     });
 
     theme = computed(() => (this.layoutConfig().darkTheme ? 'light' : 'dark'));
-
     isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().mobileMenuActive);
-
     isDarkTheme = computed(() => this.layoutConfig().darkTheme);
-
     getPrimary = computed(() => this.layoutConfig().primary);
-
     getSurface = computed(() => this.layoutConfig().surface);
-
     isOverlay = computed(() => this.layoutConfig().menuMode === 'overlay');
-
     transitionComplete = signal<boolean>(false);
 
     private initialized = false;
@@ -57,20 +64,22 @@ export class LayoutService {
     constructor() {
         effect(() => {
             const config = this.layoutConfig();
+            // Guardar en localStorage cada vez que cambia
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+            } catch {}
 
-            if (!this.initialized || !config) {
+            if (!this.initialized) {
                 this.initialized = true;
+                this.toggleDarkMode(config);
                 return;
             }
-
             this.handleDarkModeTransition(config);
         });
     }
 
     private handleDarkModeTransition(config: LayoutConfig): void {
-        const supportsViewTransition = 'startViewTransition' in document;
-
-        if (supportsViewTransition) {
+        if ('startViewTransition' in document) {
             this.startViewTransition(config);
         } else {
             this.toggleDarkMode(config);
@@ -78,7 +87,7 @@ export class LayoutService {
     }
 
     private startViewTransition(config: LayoutConfig): void {
-        document.startViewTransition(() => {
+        (document as any).startViewTransition(() => {
             this.toggleDarkMode(config);
         });
     }
@@ -94,13 +103,12 @@ export class LayoutService {
 
     onMenuToggle() {
         if (this.isOverlay()) {
-            this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
+            this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !prev.overlayMenuActive }));
         }
-
         if (this.isDesktop()) {
-            this.layoutState.update((prev) => ({ ...prev, staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive }));
+            this.layoutState.update((prev) => ({ ...prev, staticMenuDesktopInactive: !prev.staticMenuDesktopInactive }));
         } else {
-            this.layoutState.update((prev) => ({ ...prev, mobileMenuActive: !this.layoutState().mobileMenuActive }));
+            this.layoutState.update((prev) => ({ ...prev, mobileMenuActive: !prev.mobileMenuActive }));
         }
     }
 

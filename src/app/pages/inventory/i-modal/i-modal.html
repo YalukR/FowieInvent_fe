@@ -1,1 +1,89 @@
-<p>i-modal works!</p>
+<!-- src/app/pages/inventory/i-modal/i-modal.html -->
+<p-dialog
+    [header]="title"
+    [visible]="visible()"
+    (visibleChange)="!$event && onClose()"
+    (onShow)="onShow()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="w-full"
+    [style]="{ maxWidth: '480px' }">
+
+    <div class="flex flex-col gap-4 py-2">
+
+        @if (error) {
+        <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+        }
+
+        <!-- Nombre -->
+        <div class="flex flex-col gap-1">
+            <label class="font-medium text-sm">Nombre <span class="text-red-400">*</span></label>
+            <input pInputText [(ngModel)]="nombre" placeholder="Ej. Laptop Dell XPS" class="w-full" />
+        </div>
+
+        <!-- Categoría -->
+        <div class="flex flex-col gap-1">
+            <label class="font-medium text-sm">Categoría <span class="text-red-400">*</span></label>
+            <p-select
+                [(ngModel)]="categoria_id"
+                [options]="categorias"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Selecciona una categoría"
+                [filter]="true"
+                filterPlaceholder="Buscar..."
+                styleClass="w-full">
+            </p-select>
+        </div>
+
+        <!-- Unidad de medida -->
+        <div class="flex flex-col gap-1">
+            <label class="font-medium text-sm">Unidad de medida <span class="text-red-400">*</span></label>
+            <input pInputText [(ngModel)]="unidad_medida" placeholder="Ej. pieza, kg, litro" class="w-full" />
+        </div>
+
+        <!-- Stock -->
+        <div class="flex gap-3">
+            <div class="flex flex-col gap-1 flex-1">
+                <label class="font-medium text-sm">
+                    Stock inicial
+                    @if (isEdit) { <span class="text-muted-color text-xs">(solo lectura)</span> }
+                </label>
+                <p-inputnumber
+                    [(ngModel)]="stock_actual"
+                    [min]="0"
+                    [disabled]="isEdit"
+                    styleClass="w-full">
+                </p-inputnumber>
+            </div>
+            <div class="flex flex-col gap-1 flex-1">
+                <label class="font-medium text-sm">Stock mínimo</label>
+                <p-inputnumber
+                    [(ngModel)]="stock_minimo"
+                    [min]="0"
+                    styleClass="w-full">
+                </p-inputnumber>
+            </div>
+        </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2">
+            <p-button
+                label="Cancelar"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="onClose()"
+                [disabled]="loading">
+            </p-button>
+            <p-button
+                [label]="isEdit ? 'Guardar cambios' : 'Crear producto'"
+                [loading]="loading"
+                (onClick)="onSave()">
+            </p-button>
+        </div>
+    </ng-template>
+
+</p-dialog>

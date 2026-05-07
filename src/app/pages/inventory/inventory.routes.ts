@@ -1,6 +1,14 @@
+// inventory.routes.ts
 import { Routes } from '@angular/router';
-import { IDashboard } from './i-dashboard/i-dashboard';
+import { Inventory } from './inventory';
 
 export default [
-    { path: 'i-dashboard', component: IDashboard},
-] as Routes
+    {
+        path: '',
+        component: Inventory,
+        children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./i-dashboard/i-dashboard').then(m => m.IDashboard) },
+        ]
+    },
+] as Routes;

@@ -15,9 +15,27 @@ import { MenuItem, MessageService } from 'primeng/api';
         <p-speeddial
             [model]="items"
             direction="up"
+            buttonClassName="speeddial-main-btn"
             [style]="{ position: 'fixed', right: '2rem', bottom: '2rem', zIndex: 1000 }">
         </p-speeddial>
-    `
+
+        <style>
+            .speeddial-main-btn {
+                width: 4rem !important;
+                height: 4rem !important;
+            }
+            .speeddial-main-btn .p-button-icon {
+                font-size: 1.5rem !important;
+            }
+            .p-speeddial-action {
+                width: 3.5rem !important;
+                height: 3.5rem !important;
+            }
+            .p-speeddial-action .p-speeddial-action-icon {
+                font-size: 1.2rem !important;
+            }
+        </style>
+`
 })
 export class AppSpeeddial implements OnInit {
     private messageService = inject(MessageService);

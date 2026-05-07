@@ -1,13 +1,15 @@
+// src/app/core/models/inventory.models.ts
+
 export interface Categoria {
     id: string;
-    tenant: string;
+    tenant?: string;
     nombre: string;
     activo: boolean;
 }
 
 export interface Producto {
     id: string;
-    tenant: string;
+    tenant?: string;
     categoria: Categoria;       // objeto anidado (read)
     categoria_id?: string;      // UUID plano (write)
     nombre: string;

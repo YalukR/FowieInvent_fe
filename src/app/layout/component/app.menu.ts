@@ -26,13 +26,13 @@ export class AppMenu {
             {
                 label: 'General',
                 items: [
-                    { label: 'Inicio', icon: 'pi pi-fw pi-home', routerLink: ['/sistema'] },
+                    { label: 'Inicio', icon: 'pi pi-fw pi-home', routerLink: ['/system'] },
                 ]
             },
             {
                 label: 'Módulos',
                 items: [
-                    { label: 'Inventario', icon: 'pi pi-fw pi-box', routerLink: ['/sistema/inventario'] },
+                    { label: 'Inventario', icon: 'pi pi-fw pi-box', routerLink: ['/system/inventory'] },
                     { label: 'Punto de venta', icon: 'pi pi-fw pi-shopping-cart', disabled: true },
                     { label: 'Personal', icon: 'pi pi-fw pi-users', disabled: true },
                 ]
@@ -40,8 +40,8 @@ export class AppMenu {
             {
                 label: 'Configuración',
                 items: [
-                    { label: 'Mi negocio', icon: 'pi pi-fw pi-building', routerLink: ['/sistema/negocio'] },
-                    { label: 'Usuarios y roles', icon: 'pi pi-fw pi-shield', routerLink: ['/sistema/usuarios'] },
+                    { label: 'Mi negocio', icon: 'pi pi-fw pi-building', routerLink: ['/system/bussines'] },
+                    { label: 'Usuarios y roles', icon: 'pi pi-fw pi-shield', routerLink: ['/system/users'] },
                 ]
             },
         ];

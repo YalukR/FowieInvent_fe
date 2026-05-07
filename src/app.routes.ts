@@ -14,7 +14,7 @@ export const appRoutes: Routes = [
 
     // ── Autenticada: sistema ──────────────────────────────────────────────────
     {
-        path: 'sistema',
+        path: 'system',
         component: AppLayout,
         canActivate: [authGuard],
         children: [
@@ -22,8 +22,9 @@ export const appRoutes: Routes = [
                 path: '',
                 loadComponent: () => import('./app/pages/home/home').then(m => m.Home),
             },
-            // Aquí irán los demás módulos
-            // { path: 'inventario', loadChildren: () => import('./app/pages/inventario/inventario.routes') },
+            { 
+                path: 'inventory', 
+                loadChildren: () => import('./app/pages/inventory/inventory.routes') },
         ],
     },
 

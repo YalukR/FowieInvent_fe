@@ -31,14 +31,16 @@ import { AuthService } from '@/app/core/service/auth.service';
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-                <button type="button" class="layout-topbar-action layout-topbar-action-highlight" (click)="configVisible = true">
+            <div class="relative">
+                <button type="button" class="layout-topbar-action layout-topbar-action-highlight"
+                    pStyleClass="@next"
+                    enterFromClass="hidden" enterActiveClass="animate-scalein"
+                    leaveToClass="hidden" leaveActiveClass="animate-fadeout"
+                    [hideOnOutsideClick]="true">
                     <i class="pi pi-palette"></i>
                 </button>
-            </div>
-
-            <p-drawer [(visible)]="configVisible" header="Configuración de tema" position="right">
                 <app-configurator />
-            </p-drawer>
+            </div>
 
             <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next"
                 enterFromClass="hidden" enterActiveClass="animate-scalein"
@@ -67,7 +69,8 @@ import { AuthService } from '@/app/core/service/auth.service';
                     }
 
                     <!-- Logout -->
-                    <button type="button" class="layout-topbar-action" (click)="logout()">
+                    <button type="button" class="layout-topbar-action" (click)="logout()"
+                        style="color: var(--p-red-500);">
                         <i class="pi pi-sign-out"></i>
                         <span>Salir</span>
                     </button>
@@ -82,7 +85,7 @@ export class AppTopbar {
     configVisible = false;
 
     layoutService = inject(LayoutService);
-    authService   = inject(AuthService);
+    authService = inject(AuthService);
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update(state => ({

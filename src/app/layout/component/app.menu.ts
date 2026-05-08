@@ -32,7 +32,25 @@ export class AppMenu {
             {
                 label: 'Módulos',
                 items: [
-                    { label: 'Inventario', icon: 'pi pi-fw pi-box', routerLink: ['/system/inventory'] },
+                    {
+                        label: 'Inventario',
+                        icon: 'pi pi-fw pi-box',
+                        path: '/system/inventory',
+                        items: [
+                            {
+                                label: 'Panel',
+                                icon: 'pi pi-fw pi-chart-bar',
+                                path: '/panel',
+                                routerLink: ['/system/inventory']
+                            },
+                            {
+                                label: 'Productos',
+                                icon: 'pi pi-fw pi-chart-bar',
+                                path: '/productos',
+                                routerLink: ['/system/inventory/productos']
+                            },
+                        ]
+                    },
                     { label: 'Punto de venta', icon: 'pi pi-fw pi-shopping-cart', disabled: true },
                     { label: 'Personal', icon: 'pi pi-fw pi-users', disabled: true },
                 ]

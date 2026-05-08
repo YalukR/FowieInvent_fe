@@ -15,6 +15,7 @@ import { ConfirmService } from '../../../core/service/confirm.service';
 import { Producto } from '../../../core/models/inventory.models';
 import { InventoryStateService } from '@/app/core/service/inventory-state.service';
 import { Subscription } from 'rxjs';
+import { INav } from '../i-nav/i-nav';
 
 @Component({
     selector: 'app-i-products',
@@ -22,7 +23,7 @@ import { Subscription } from 'rxjs';
     imports: [
         CommonModule, TableModule, TagModule, ButtonModule,
         InputTextModule, IconFieldModule, InputIconModule,
-        SkeletonModule, MessageModule, IModal,
+        SkeletonModule, MessageModule, IModal, INav,
     ],
     templateUrl: './i-products.html',
     styleUrl: './i-products.scss',

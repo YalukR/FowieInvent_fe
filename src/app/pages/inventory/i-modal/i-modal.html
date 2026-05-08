@@ -24,7 +24,19 @@
 
         <!-- Categoría -->
         <div class="flex flex-col gap-1">
-            <label class="font-medium text-sm">Categoría <span class="text-red-400">*</span></label>
+            <div class="flex align-items-center justify-content-between mb-1">
+                <label class="font-medium text-sm">Categoría <span class="text-red-400">*</span></label>
+                <button type="button"
+                    class="text-xs cursor-pointer border-none bg-transparent p-0"
+                    [style.color]="showNuevaCategoria ? 'var(--p-red-500)' : 'var(--p-primary-500)'"
+                    (click)="toggleNuevaCategoria()">
+                    <i class="pi" [ngClass]="showNuevaCategoria ? 'pi-times' : 'pi-plus'"></i>
+                    {{ showNuevaCategoria ? 'Cancelar' : 'Nueva categoría' }}
+                </button>
+            </div>
+
+            <!-- Select existente -->
+            @if (!showNuevaCategoria) {
             <p-select
                 [(ngModel)]="categoria_id"
                 [options]="categorias"
@@ -35,6 +47,31 @@
                 filterPlaceholder="Buscar..."
                 styleClass="w-full">
             </p-select>
+            }
+
+            <!-- Inline nueva categoría -->
+            @if (showNuevaCategoria) {
+            <div class="flex flex-col gap-2 p-3 border-round"
+                style="border: 1px solid var(--p-primary-200); background: var(--surface-50);">
+                <span class="text-xs text-muted-color">Nueva categoría</span>
+                @if (errorCategoria) {
+                <p-message severity="error" [text]="errorCategoria" styleClass="w-full"></p-message>
+                }
+                <div class="flex gap-2">
+                    <input pInputText
+                        [(ngModel)]="nuevaCategoriaName"
+                        placeholder="Ej. Electrónica"
+                        class="w-full"
+                        (keyup.enter)="crearCategoria()" />
+                    <p-button
+                        label="Crear"
+                        size="small"
+                        [loading]="loadingCategoria"
+                        (onClick)="crearCategoria()">
+                    </p-button>
+                </div>
+            </div>
+            }
         </div>
 
         <!-- Unidad de medida -->
@@ -48,7 +85,9 @@
             <div class="flex flex-col gap-1 flex-1">
                 <label class="font-medium text-sm">
                     Stock inicial
-                    @if (isEdit) { <span class="text-muted-color text-xs">(solo lectura)</span> }
+                    @if (isEdit) {
+                    <span class="text-muted-color text-xs">(solo lectura)</span>
+                    }
                 </label>
                 <p-inputnumber
                     [(ngModel)]="stock_actual"

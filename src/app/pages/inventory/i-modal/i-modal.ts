@@ -32,15 +32,21 @@ export class IModal implements OnInit {
 
     // ── I/O ───────────────────────────────────────────────────────────────────
     visible  = input<boolean>(false);
-    producto = input<Producto | null>(null);   // null = modo crear
+    producto = input<Producto | null>(null);
 
-    closed  = output<void>();
-    saved   = output<Producto>();
+    closed = output<void>();
+    saved  = output<Producto>();
 
     // ── Estado ────────────────────────────────────────────────────────────────
     categorias: Categoria[] = [];
-    loading  = false;
+    loading         = false;
     error: string | null = null;
+
+    // Inline nueva categoría
+    showNuevaCategoria  = false;
+    nuevaCategoriaName  = '';
+    loadingCategoria    = false;
+    errorCategoria: string | null = null;
 
     // ── Form ──────────────────────────────────────────────────────────────────
     nombre        = '';
@@ -53,14 +59,18 @@ export class IModal implements OnInit {
     get title(): string   { return this.isEdit ? 'Editar producto' : 'Nuevo producto'; }
 
     ngOnInit() {
+        this.loadCategorias();
+    }
+
+    loadCategorias() {
         this.inventoryService.getCategorias().subscribe({
             next: cats => this.categorias = cats,
         });
     }
 
-    // Se llama cuando el dialog abre (ngModel binding via visible)
     onShow() {
         this.error = null;
+        this.cancelNuevaCategoria();
         const p = this.producto();
         if (p) {
             this.nombre        = p.nombre;
@@ -77,6 +87,46 @@ export class IModal implements OnInit {
         }
     }
 
+    // ── Inline categoría ──────────────────────────────────────────────────────
+
+    toggleNuevaCategoria() {
+        this.showNuevaCategoria = !this.showNuevaCategoria;
+        this.nuevaCategoriaName = '';
+        this.errorCategoria = null;
+    }
+
+    cancelNuevaCategoria() {
+        this.showNuevaCategoria = false;
+        this.nuevaCategoriaName = '';
+        this.errorCategoria = null;
+    }
+
+    crearCategoria() {
+        const nombre = this.nuevaCategoriaName.trim();
+        if (!nombre) {
+            this.errorCategoria = 'Escribe un nombre para la categoría.';
+            return;
+        }
+
+        this.loadingCategoria = true;
+        this.errorCategoria   = null;
+
+        this.inventoryService.createCategoria({ nombre }).subscribe({
+            next: cat => {
+                this.categorias  = [...this.categorias, cat];
+                this.categoria_id = cat.id;
+                this.loadingCategoria = false;
+                this.cancelNuevaCategoria();
+            },
+            error: () => {
+                this.loadingCategoria = false;
+                this.errorCategoria = 'No se pudo crear. ¿Ya existe esa categoría?';
+            }
+        });
+    }
+
+    // ── Guardar producto ──────────────────────────────────────────────────────
+
     onClose() {
         this.closed.emit();
     }
@@ -89,11 +139,9 @@ export class IModal implements OnInit {
 
         this.loading = true;
         this.error   = null;
-
         const p = this.producto();
 
         if (p) {
-            // Editar
             const dto: UpdateProductoDto = {
                 nombre:        this.nombre,
                 categoria_id:  this.categoria_id,
@@ -102,10 +150,9 @@ export class IModal implements OnInit {
             };
             this.inventoryService.updateProducto(p.id, dto).subscribe({
                 next: updated => { this.loading = false; this.saved.emit(updated); },
-                error: ()      => { this.loading = false; this.error = 'Error al guardar. Intenta de nuevo.'; },
+                error: ()     => { this.loading = false; this.error = 'Error al guardar. Intenta de nuevo.'; },
             });
         } else {
-            // Crear
             const dto: CreateProductoDto = {
                 nombre:        this.nombre,
                 categoria_id:  this.categoria_id,

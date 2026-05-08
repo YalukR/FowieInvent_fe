@@ -1,13 +1,11 @@
-<!-- src/app/pages/inventory/i-products/i-products.html -->
 <div class="flex flex-col gap-4">
 
     <!-- Nav con acciones proyectadas -->
     <app-i-nav>
-        <p-button label="Nuevo producto" icon="pi pi-plus" size="small"
-            (onClick)="openCreate()">
+        <p-button label="Nuevo producto" icon="pi pi-plus" size="small" (onClick)="openCreate()">
         </p-button>
-        <p-button label="Exportar" icon="pi pi-file-export" severity="secondary"
-            [outlined]="true" size="small" (onClick)="loadProductos()">
+        <p-button label="Exportar" icon="pi pi-file-export" severity="secondary" [outlined]="true" size="small"
+            (onClick)="loadProductos()">
         </p-button>
     </app-i-nav>
 
@@ -26,13 +24,12 @@
             <p-skeleton width="14rem" height="2rem" borderRadius="6px" />
         </div>
         @for (row of skeletonRows; track row) {
-        <div class="flex align-items-center gap-3 py-2"
-            style="border-bottom: 1px solid var(--surface-border);">
-            <p-skeleton width="30%"  height="1rem" borderRadius="4px" />
-            <p-skeleton width="15%"  height="1rem" borderRadius="4px" class="hidden md:block" />
-            <p-skeleton width="10%"  height="1rem" borderRadius="4px" class="hidden md:block" />
-            <p-skeleton width="6%"   height="1rem" borderRadius="4px" styleClass="ml-auto" />
-            <p-skeleton width="8%"   height="1.5rem" borderRadius="12px" />
+        <div class="flex align-items-center gap-3 py-2" style="border-bottom: 1px solid var(--surface-border);">
+            <p-skeleton width="30%" height="1rem" borderRadius="4px" />
+            <p-skeleton width="15%" height="1rem" borderRadius="4px" class="hidden md:block" />
+            <p-skeleton width="10%" height="1rem" borderRadius="4px" class="hidden md:block" />
+            <p-skeleton width="6%" height="1rem" borderRadius="4px" styleClass="ml-auto" />
+            <p-skeleton width="8%" height="1.5rem" borderRadius="12px" />
             <p-skeleton width="6rem" height="1.5rem" borderRadius="6px" />
         </div>
         }
@@ -41,18 +38,9 @@
 
     <!-- Tabla -->
     @if (!loading) {
-    <p-table
-        [value]="productos"
-        [paginator]="true"
-        [rows]="8"
-        [rowsPerPageOptions]="[8, 15, 30]"
-        [globalFilterFields]="['nombre', 'categoria.nombre', 'unidad_medida']"
-        dataKey="id"
-        styleClass="p-datatable-sm"
-        [tableStyle]="{ 'width': '100%' }"
-        [scrollable]="true"
-        scrollHeight="flex"
-        #dt>
+    <p-table [value]="productos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        [globalFilterFields]="['nombre', 'categoria.nombre', 'unidad_medida']" dataKey="id" styleClass="p-datatable-sm"
+        [tableStyle]="{ 'width': '100%' }" [scrollable]="true" scrollHeight="flex" #dt>
 
         <ng-template pTemplate="caption">
             <div class="flex justify-content-end">
@@ -98,8 +86,7 @@
                     {{ producto.unidad_medida }}
                 </td>
                 <td style="text-align:center">
-                    <span class="font-bold"
-                        [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
+                    <span class="font-bold" [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
                                        producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
                                        'var(--p-green-500)'">
                         {{ producto.stock_actual }}
@@ -119,10 +106,11 @@
                 </td>
                 <td pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
                     <div class="flex gap-1 justify-content-center">
-                        <p-button icon="pi pi-eye"    severity="secondary" [text]="true" size="small" />
+                        <p-button icon="pi pi-eye" severity="secondary" [text]="true" size="small"
+                            (onClick)="openDetail(producto)" />
                         <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
                             (onClick)="openEdit(producto)" />
-                        <p-button icon="pi pi-trash"  severity="danger"    [text]="true" size="small"
+                        <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
                             (onClick)="onDelete(producto)" />
                     </div>
                 </td>
@@ -144,9 +132,6 @@
 </div>
 
 <!-- Modal crear/editar -->
-<app-i-modal
-    [visible]="modalVisible"
-    [producto]="selectedProducto"
-    (closed)="onModalClosed()"
+<app-i-modal [visible]="modalVisible" [producto]="selectedProducto" (closed)="onModalClosed()"
     (saved)="onModalSaved($event)">
 </app-i-modal>

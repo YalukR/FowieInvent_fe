@@ -1,25 +1,8 @@
-<!-- src/app/pages/inventory/i-dashboard/i-dashboard.html -->
 <div class="flex flex-col gap-4">
+
+    <app-i-nav/>
 
     <p class="text-muted-color text-sm m-0">Resumen del inventario</p>
 
-    <!-- Card: Tabla de productos -->
-    <div class="flex flex-col align-items-start gap-3 p-4 border-round surface-card shadow-1"
-        style="max-width: 320px; border: 1px solid var(--surface-border);">
-        <div class="flex align-items-center gap-2">
-            <i class="pi pi-box text-2xl text-primary"></i>
-            <span class="font-semibold text-lg">Productos</span>
-        </div>
-        <p class="text-muted-color text-sm m-0">
-            Consulta, agrega y edita los productos del inventario.
-        </p>
-        <p-button
-            label="Ver tabla de productos"
-            icon="pi pi-arrow-right"
-            iconPos="right"
-            size="small"
-            (onClick)="goToProductos()">
-        </p-button>
-    </div>
 
 </div>

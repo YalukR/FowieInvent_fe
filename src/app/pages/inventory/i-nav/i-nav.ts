@@ -15,9 +15,9 @@ export class INav {
     constructor(private router: Router, private location: Location) {}
 
     navItems = [
-        { label: 'Dashboard',  icon: 'pi pi-home',  route: '/inventory' },
-        { label: 'Productos',  icon: 'pi pi-box',   route: '/inventory/products' },
-        { label: 'Categorías', icon: 'pi pi-tag',   route: '/inventory/categories' },
+        { label: 'Dashboard',  icon: 'pi pi-home',  route: '/system/inventory/dashboard' },
+        { label: 'Productos',  icon: 'pi pi-box',   route: '/system/inventory/products' },
+        { label: 'Categorías', icon: 'pi pi-tag',   route: '/system/inventory/categories' },
     ];
 
     goBack() {

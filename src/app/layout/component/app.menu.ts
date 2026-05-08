@@ -40,14 +40,14 @@ export class AppMenu {
                             {
                                 label: 'Panel',
                                 icon: 'pi pi-fw pi-chart-bar',
-                                path: '/panel',
+                                path: '/dashboard',
                                 routerLink: ['/system/inventory']
                             },
                             {
                                 label: 'Productos',
                                 icon: 'pi pi-fw pi-chart-bar',
-                                path: '/productos',
-                                routerLink: ['/system/inventory/productos']
+                                path: '/products',
+                                routerLink: ['/system/inventory/products']
                             },
                         ]
                     },

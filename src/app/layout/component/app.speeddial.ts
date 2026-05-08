@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { ToastModule } from 'primeng/toast';
 import { MenuItem, MessageService } from 'primeng/api';
+import { InventoryStateService } from '@/app/core/service/inventory-state.service';
 
 @Component({
     selector: 'app-speeddial',
@@ -39,7 +40,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 })
 export class AppSpeeddial implements OnInit {
     private messageService = inject(MessageService);
-
+    private inventoryState = inject(InventoryStateService);
     items: MenuItem[] = [];
 
     ngOnInit() {
@@ -48,7 +49,7 @@ export class AppSpeeddial implements OnInit {
                 icon: 'pi pi-plus',
                 tooltipOptions: { tooltipLabel: 'Nuevo producto' },
                 command: () => {
-                    this.messageService.add({ severity: 'info', summary: 'Nuevo', detail: 'Próximamente' });
+                    this.inventoryState.triggerCreateProducto()
                 }
             },
             {

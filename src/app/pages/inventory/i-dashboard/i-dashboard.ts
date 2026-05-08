@@ -13,6 +13,8 @@ import { IModal } from '../i-modal/i-modal';
 import { InventoryService } from '../../../core/service/inventory.service';
 import { ConfirmService } from '../../../core/service/confirm.service';
 import { Producto } from '../../../core/models/inventory.models';
+import { InventoryStateService } from '@/app/core/service/inventory-state.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-i-dashboard',
@@ -36,6 +38,8 @@ export class IDashboard implements OnInit {
 
     private inventoryService = inject(InventoryService);
     private confirmService   = inject(ConfirmService);
+    private inventoryState   = inject(InventoryStateService)
+    private sub = new Subscription()
 
     // ── Estado ────────────────────────────────────────────────────────────────
     productos: Producto[] = [];
@@ -51,6 +55,11 @@ export class IDashboard implements OnInit {
 
     ngOnInit() {
         this.loadProductos();
+        this.inventoryState.openCreateProducto$.subscribe(()=> this.openCreate())
+    }
+
+    ngOnDestroy() {
+      this.sub.unsubscribe()
     }
 
     loadProductos() {

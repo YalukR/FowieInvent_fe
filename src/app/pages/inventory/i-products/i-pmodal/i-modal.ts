@@ -8,13 +8,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
-import { InventoryService } from '../../../core/service/inventory.service';
+import { InventoryService } from '../../../../core/service/inventory.service';
 import {
     Categoria,
     Producto,
     CreateProductoDto,
     UpdateProductoDto,
-} from '../../../core/models/inventory.models';
+} from '../../../../core/models/inventory.models';
 
 @Component({
     selector: 'app-i-modal',

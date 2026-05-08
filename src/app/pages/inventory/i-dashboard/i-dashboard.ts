@@ -1,5 +1,5 @@
 // src/app/pages/inventory/i-dashboard/i-dashboard.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -20,54 +20,58 @@ import { Subscription } from 'rxjs';
     selector: 'app-i-dashboard',
     standalone: true,
     imports: [
-        CommonModule,
-        TableModule,
-        TagModule,
-        ButtonModule,
-        InputTextModule,
-        IconFieldModule,
-        InputIconModule,
-        SkeletonModule,
-        MessageModule,
-        IModal,
+        CommonModule, TableModule, TagModule, ButtonModule,
+        InputTextModule, IconFieldModule, InputIconModule,
+        SkeletonModule, MessageModule, IModal,
     ],
     templateUrl: './i-dashboard.html',
     styleUrl: './i-dashboard.scss',
 })
-export class IDashboard implements OnInit {
+export class IDashboard implements OnInit, OnDestroy {
 
     private inventoryService = inject(InventoryService);
     private confirmService   = inject(ConfirmService);
-    private inventoryState   = inject(InventoryStateService)
-    private sub = new Subscription()
+    private inventoryState   = inject(InventoryStateService);
+    private cdr              = inject(ChangeDetectorRef); // 👈 agregado
+    private sub              = new Subscription();
 
     // ── Estado ────────────────────────────────────────────────────────────────
     productos: Producto[] = [];
-    loading  = false;
+    loading = true;
     error: string | null = null;
     skeletonRows = Array(8);
 
     // ── Modal ─────────────────────────────────────────────────────────────────
-    modalVisible     = false;
+    modalVisible = false;
     selectedProducto: Producto | null = null;
 
     // ── Init ──────────────────────────────────────────────────────────────────
 
     ngOnInit() {
         this.loadProductos();
-        this.inventoryState.openCreateProducto$.subscribe(()=> this.openCreate())
+        this.sub.add(
+            this.inventoryState.openCreateProducto$.subscribe(() => this.openCreate())
+        );
     }
 
     ngOnDestroy() {
-      this.sub.unsubscribe()
+        this.sub.unsubscribe();
     }
 
     loadProductos() {
         this.loading = true;
-        this.error   = null;
+        this.error = null;
         this.inventoryService.getProductos().subscribe({
-            next:  productos => { this.productos = productos; this.loading = false; },
-            error: ()        => { this.error = 'No se pudieron cargar los productos.'; this.loading = false; },
+            next: productos => {
+                this.productos = productos;
+                this.loading = false;
+                this.cdr.markForCheck(); // 👈
+            },
+            error: () => {
+                this.error = 'No se pudieron cargar los productos.';
+                this.loading = false;
+                this.cdr.markForCheck(); // 👈
+            },
         });
     }
 
@@ -84,7 +88,7 @@ export class IDashboard implements OnInit {
     }
 
     onModalClosed() {
-        this.modalVisible    = false;
+        this.modalVisible = false;
         this.selectedProducto = null;
     }
 
@@ -99,7 +103,7 @@ export class IDashboard implements OnInit {
         } else {
             this.productos = [producto, ...this.productos];
         }
-        this.modalVisible    = false;
+        this.modalVisible = false;
         this.selectedProducto = null;
     }
 
@@ -110,8 +114,12 @@ export class IDashboard implements OnInit {
             nombre: producto.nombre,
             onAccept: () => {
                 this.inventoryService.deleteProducto(producto.id).subscribe({
-                    next:  () => this.productos = this.productos.filter(p => p.id !== producto.id),
-                    error: () => this.error = 'No se pudo eliminar. Intenta de nuevo.',
+                    next: () => {
+                        this.productos = this.productos.filter(p => p.id !== producto.id);
+                    },
+                    error: () => {
+                        this.error = 'No se pudo eliminar. Intenta de nuevo.';
+                    },
                 });
             }
         });
@@ -120,13 +128,13 @@ export class IDashboard implements OnInit {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     getStockSeverity(producto: Producto): 'success' | 'warn' | 'danger' {
-        if (producto.stock_actual === 0)                    return 'danger';
+        if (producto.stock_actual === 0) return 'danger';
         if (producto.stock_actual <= producto.stock_minimo) return 'warn';
         return 'success';
     }
 
     getStockLabel(producto: Producto): string {
-        if (producto.stock_actual === 0)                    return 'Sin stock';
+        if (producto.stock_actual === 0) return 'Sin stock';
         if (producto.stock_actual <= producto.stock_minimo) return 'Stock bajo';
         return 'OK';
     }

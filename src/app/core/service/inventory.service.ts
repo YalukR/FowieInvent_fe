@@ -1,0 +1,78 @@
+// src/app/core/service/inventory.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import {
+    Categoria,
+    Producto,
+    Movimiento,
+    CreateProductoDto,
+    UpdateProductoDto,
+    CreateCategoriaDto,
+    CreateMovimientoDto,
+} from '../models/inventory.models';
+
+@Injectable({ providedIn: 'root' })
+export class InventoryService {
+
+    private base = environment.apiUrl;
+
+    constructor(private http: HttpClient) {}
+
+    // ── Categorías ────────────────────────────────────────────────────────────
+
+    getCategorias(): Observable<Categoria[]> {
+        return this.http.get<Categoria[]>(`${this.base}/inventory/categorias/`);
+    }
+
+    createCategoria(dto: CreateCategoriaDto): Observable<Categoria> {
+        return this.http.post<Categoria>(`${this.base}/inventory/categorias/`, dto);
+    }
+
+    updateCategoria(id: string, dto: Partial<CreateCategoriaDto>): Observable<Categoria> {
+        return this.http.patch<Categoria>(`${this.base}/inventory/categorias/${id}/`, dto);
+    }
+
+    deleteCategoria(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.base}/inventory/categorias/${id}/`);
+    }
+
+    // ── Productos ─────────────────────────────────────────────────────────────
+
+    getProductos(): Observable<Producto[]> {
+        return this.http.get<Producto[]>(`${this.base}/inventory/productos/`);
+    }
+
+    getProducto(id: string): Observable<Producto> {
+        return this.http.get<Producto>(`${this.base}/inventory/productos/${id}/`);
+    }
+
+    createProducto(dto: CreateProductoDto): Observable<Producto> {
+        return this.http.post<Producto>(`${this.base}/inventory/productos/`, dto);
+    }
+
+    updateProducto(id: string, dto: UpdateProductoDto): Observable<Producto> {
+        return this.http.patch<Producto>(`${this.base}/inventory/productos/${id}/`, dto);
+    }
+
+    deleteProducto(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.base}/inventory/productos/${id}/`);
+    }
+
+    // ── Movimientos ───────────────────────────────────────────────────────────
+
+    getMovimientos(): Observable<Movimiento[]> {
+        return this.http.get<Movimiento[]>(`${this.base}/inventory/movimientos/`);
+    }
+
+    getMovimientosByProducto(productoId: string): Observable<Movimiento[]> {
+        return this.http.get<Movimiento[]>(
+            `${this.base}/inventory/movimientos/?producto=${productoId}`
+        );
+    }
+
+    createMovimiento(dto: CreateMovimientoDto): Observable<Movimiento> {
+        return this.http.post<Movimiento>(`${this.base}/inventory/movimientos/`, dto);
+    }
+}

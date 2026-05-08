@@ -18,7 +18,7 @@ import { AuthService } from '@/app/core/service/auth.service';
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <a class="layout-topbar-logo" routerLink="/sistema">
+            <a class="layout-topbar-logo" routerLink="/system">
                 <span class="w-2rem h-2rem border-circle bg-primary flex align-items-center justify-content-center">
                     <i class="pi pi-box text-white text-xs"></i>
                 </span>

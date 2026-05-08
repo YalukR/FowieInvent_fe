@@ -160,7 +160,7 @@ export class Login {
         this.error.set(null);
 
         this.authService.login({ email: this.email, password: this.password }).subscribe({
-            next: () => this.router.navigate(['/sistema']),
+            next: () => this.router.navigate(['/system']),
             error: (msg: string) => {
                 this.error.set(msg);
                 this.loading.set(false);

@@ -38,16 +38,22 @@ export class AppMenu {
                         path: '/system/inventory',
                         items: [
                             {
-                                label: 'Panel',
-                                icon: 'pi pi-fw pi-chart-bar',
+                                label: 'Dashboard',
+                                icon: 'pi pi-fw pi-home',
                                 path: '/dashboard',
                                 routerLink: ['/system/inventory']
                             },
                             {
                                 label: 'Productos',
-                                icon: 'pi pi-fw pi-chart-bar',
+                                icon: 'pi pi-fw pi-box',
                                 path: '/products',
                                 routerLink: ['/system/inventory/products']
+                            },
+                            {
+                                label: 'Categorías',
+                                icon: 'pi pi-fw pi-tag',
+                                path: '/categories',
+                                routerLink: ['/system/inventory/categories']
                             },
                         ]
                     },

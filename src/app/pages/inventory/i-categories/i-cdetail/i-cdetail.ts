@@ -25,12 +25,12 @@ import { Subscription } from 'rxjs';
 })
 export class ICdetail implements OnInit, OnDestroy {
 
-    private route            = inject(ActivatedRoute);
-    private router           = inject(Router);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private inventoryService = inject(InventoryService);
-    private confirmService   = inject(ConfirmService);
-    private inventoryState   = inject(InventoryStateService);
-    private sub              = new Subscription();
+    private confirmService = inject(ConfirmService);
+    private inventoryState = inject(InventoryStateService);
+    private sub = new Subscription();
 
     categoria: Categoria | null = null;
     loading = true;
@@ -38,25 +38,19 @@ export class ICdetail implements OnInit, OnDestroy {
     modalVisible = false;
 
     ngOnInit() {
-        const nav   = this.router.getCurrentNavigation();
-        const state = nav?.extras?.state as { categoria?: Categoria };
+        const state = history.state as { categoria?: Categoria };
 
         if (state?.categoria) {
             this.categoria = state.categoria;
-            this.loading   = false;
+            this.loading = false;
         } else {
             const id = this.route.snapshot.paramMap.get('id');
             if (id) this.loadCategoria(id);
             else { this.error = 'ID de categoría no encontrado.'; this.loading = false; }
         }
 
-        // SpeedDial en móvil
-        this.sub.add(
-            this.inventoryState.openEditCategoria$.subscribe(() => this.openEdit())
-        );
-        this.sub.add(
-            this.inventoryState.deleteCategoria$.subscribe(() => this.onDelete())
-        );
+        this.sub.add(this.inventoryState.openEditCategoria$.subscribe(() => this.openEdit()));
+        this.sub.add(this.inventoryState.deleteCategoria$.subscribe(() => this.onDelete()));
     }
 
     ngOnDestroy() {
@@ -65,7 +59,7 @@ export class ICdetail implements OnInit, OnDestroy {
 
     loadCategoria(id: string) {
         this.loading = true;
-        this.error   = null;
+        this.error = null;
         this.inventoryService.getCategorias().subscribe({
             next: cats => {
                 this.categoria = cats.find(c => c.id === id) ?? null;
@@ -76,7 +70,7 @@ export class ICdetail implements OnInit, OnDestroy {
         });
     }
 
-    openEdit()  { this.modalVisible = true; }
+    openEdit() { this.modalVisible = true; }
     onModalClosed() { this.modalVisible = false; }
     onModalSaved(categoria: Categoria) { this.categoria = categoria; this.modalVisible = false; }
 

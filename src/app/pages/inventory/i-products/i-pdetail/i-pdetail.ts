@@ -27,12 +27,12 @@ import { Subscription } from 'rxjs';
 })
 export class IPdetail implements OnInit, OnDestroy {
 
-    private route            = inject(ActivatedRoute);
-    private router           = inject(Router);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private inventoryService = inject(InventoryService);
-    private confirmService   = inject(ConfirmService);
-    private inventoryState   = inject(InventoryStateService);
-    private sub              = new Subscription();
+    private confirmService = inject(ConfirmService);
+    private inventoryState = inject(InventoryStateService);
+    private sub = new Subscription();
 
     producto: Producto | null = null;
     loading = true;
@@ -40,24 +40,20 @@ export class IPdetail implements OnInit, OnDestroy {
     modalVisible = false;
 
     ngOnInit() {
-        const nav   = this.router.getCurrentNavigation();
-        const state = nav?.extras?.state as { producto?: Producto };
+        // history.state persiste aunque getCurrentNavigation() ya sea null
+        const state = history.state as { producto?: Producto };
 
         if (state?.producto) {
             this.producto = state.producto;
-            this.loading  = false;
+            this.loading = false;
         } else {
             const id = this.route.snapshot.paramMap.get('id');
             if (id) this.loadProducto(id);
+            else { this.error = 'ID no encontrado.'; this.loading = false; }
         }
 
-        // SpeedDial en móvil
-        this.sub.add(
-            this.inventoryState.openEditProducto$.subscribe(() => this.openEdit())
-        );
-        this.sub.add(
-            this.inventoryState.deleteProducto$.subscribe(() => this.onDelete())
-        );
+        this.sub.add(this.inventoryState.openEditProducto$.subscribe(() => this.openEdit()));
+        this.sub.add(this.inventoryState.deleteProducto$.subscribe(() => this.onDelete()));
     }
 
     ngOnDestroy() {
@@ -66,14 +62,14 @@ export class IPdetail implements OnInit, OnDestroy {
 
     loadProducto(id: string) {
         this.loading = true;
-        this.error   = null;
+        this.error = null;
         this.inventoryService.getProducto(id).subscribe({
             next: producto => { this.producto = producto; this.loading = false; },
-            error: ()       => { this.error = 'No se pudo cargar el producto.'; this.loading = false; },
+            error: () => { this.error = 'No se pudo cargar el producto.'; this.loading = false; },
         });
     }
 
-    openEdit()  { this.modalVisible = true; }
+    openEdit() { this.modalVisible = true; }
     onModalClosed() { this.modalVisible = false; }
     onModalSaved(producto: Producto) { this.producto = producto; this.modalVisible = false; }
 

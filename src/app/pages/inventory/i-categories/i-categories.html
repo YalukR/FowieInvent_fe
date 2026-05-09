@@ -3,7 +3,8 @@
 
     <!-- Nav -->
     <app-i-nav>
-        <p-button label="Nueva categoría" icon="pi pi-plus" size="small">
+        <p-button label="Nueva categoría" icon="pi pi-plus" size="small"
+            (onClick)="openCreate()">
         </p-button>
     </app-i-nav>
 
@@ -77,7 +78,10 @@
                 </td>
                 <td pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
                     <div class="flex gap-1 justify-content-center">
-                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" />
+                        <p-button icon="pi pi-eye"    severity="secondary" [text]="true" size="small"
+                            (onClick)="openDetail(categoria)" />
+                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
+                            (onClick)="openEdit(categoria)" />
                         <p-button icon="pi pi-trash"  severity="danger"    [text]="true" size="small"
                             (onClick)="onDelete(categoria)" />
                     </div>
@@ -98,3 +102,11 @@
     }
 
 </div>
+
+<!-- Modal crear/editar -->
+<app-i-cmodal
+    [visible]="modalVisible"
+    [categoria]="selectedCategoria"
+    (closed)="onModalClosed()"
+    (saved)="onModalSaved($event)">
+</app-i-cmodal>

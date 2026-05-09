@@ -10,6 +10,7 @@ import {
     CreateProductoDto,
     UpdateProductoDto,
     CreateCategoriaDto,
+    UpdateCategoriaDto,
     CreateMovimientoDto,
 } from '../models/inventory.models';
 
@@ -18,7 +19,7 @@ export class InventoryService {
 
     private base = environment.apiUrl;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     // ── Categorías ────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export class InventoryService {
         return this.http.post<Categoria>(`${this.base}/inventory/categorias/`, dto);
     }
 
-    updateCategoria(id: string, dto: Partial<CreateCategoriaDto>): Observable<Categoria> {
+    updateCategoria(id: string, dto: UpdateCategoriaDto): Observable<Categoria> {
         return this.http.patch<Categoria>(`${this.base}/inventory/categorias/${id}/`, dto);
     }
 

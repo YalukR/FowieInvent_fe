@@ -96,7 +96,7 @@ export class IProducts implements OnInit, OnDestroy {
   }
 
   openDetail(producto: Producto) {
-    this.router.navigate(['/inventory/products', producto.id], {
+    this.router.navigate(['/system/inventory/products', producto.id], {
       state: { producto }
     });
   }

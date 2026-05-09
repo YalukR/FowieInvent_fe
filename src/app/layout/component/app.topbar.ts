@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -28,61 +28,67 @@ import { AuthService } from '@/app/core/service/auth.service';
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
+
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-            <div class="relative">
-                <button type="button" class="layout-topbar-action layout-topbar-action-highlight"
-                    pStyleClass="@next"
-                    enterFromClass="hidden" enterActiveClass="animate-scalein"
-                    leaveToClass="hidden" leaveActiveClass="animate-fadeout"
-                    [hideOnOutsideClick]="true">
-                    <i class="pi pi-palette"></i>
-                </button>
-                <app-configurator />
-            </div>
 
-            <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next"
-                enterFromClass="hidden" enterActiveClass="animate-scalein"
-                leaveToClass="hidden" leaveActiveClass="animate-fadeout"
-                [hideOnOutsideClick]="true">
-                <i class="pi pi-ellipsis-v"></i>
-            </button>
-
-            <div class="layout-topbar-menu hidden lg:block">
-                <div class="layout-topbar-menu-content">
-
-                    <!-- Usuario actual -->
-                    @if (authService.currentUser(); as user) {
-                    <div class="layout-topbar-action" style="cursor:default; gap: 0.5rem;">
-                        <div style="width:2rem; height:2rem; border-radius:50%; background:var(--p-primary-500);
-                            display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <span style="color:white; font-size:0.7rem; font-weight:700;">
-                                {{ user.email[0].toUpperCase() }}
-                            </span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.2;">
-                            <span style="font-size:0.8rem; font-weight:600;">{{ user.email }}</span>
-                            <span style="font-size:0.7rem; opacity:0.6;">{{ user.rol }}</span>
-                        </div>
-                    </div>
-                    }
-
-                    <!-- Logout -->
-                    <button type="button" class="layout-topbar-action" (click)="logout()"
-                        style="color: var(--p-red-500);">
-                        <i class="pi pi-sign-out"></i>
-                        <span>Salir</span>
+                <div class="relative">
+                    <button type="button" class="layout-topbar-action layout-topbar-action-highlight"
+                        (click)="toggleConfig($event)">
+                        <i class="pi pi-palette"></i>
                     </button>
-
+                    @if (configVisible) {
+                    <app-configurator />
+                    }
                 </div>
+
             </div>
+
+            <div class="relative">
+                <button class="layout-topbar-menu-button layout-topbar-action"
+                    (click)="toggleMenu($event)">
+                    <i class="pi pi-ellipsis-v"></i>
+                </button>
+
+                @if (menuVisible) {
+                <div class="layout-topbar-menu">
+                    <div class="layout-topbar-menu-content">
+
+                        @if (authService.currentUser(); as user) {
+                        <div class="layout-topbar-action" style="cursor:default; gap: 0.5rem;">
+                            <div style="width:2rem; height:2rem; border-radius:50%; background:var(--p-primary-500);
+                                display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <span style="color:white; font-size:0.7rem; font-weight:700;">
+                                    {{ user.email[0].toUpperCase() }}
+                                </span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.2;">
+                                <span style="font-size:0.8rem; font-weight:600;">{{ user.email }}</span>
+                                <span style="font-size:0.7rem; opacity:0.6;">{{ user.rol }}</span>
+                            </div>
+                        </div>
+                        }
+
+                        <button type="button" class="layout-topbar-action" (click)="logout()"
+                            style="color: var(--p-red-500);">
+                            <i class="pi pi-sign-out"></i>
+                            <span>Salir</span>
+                        </button>
+
+                    </div>
+                </div>
+                }
+            </div>
+
         </div>
     </div>`
 })
 export class AppTopbar {
     items!: MenuItem[];
+
     configVisible = false;
+    menuVisible = false;
 
     layoutService = inject(LayoutService);
     authService = inject(AuthService);
@@ -92,6 +98,27 @@ export class AppTopbar {
             ...state,
             darkTheme: !state.darkTheme
         }));
+    }
+
+    toggleConfig(event: MouseEvent) {
+        event.stopPropagation();
+        this.configVisible = !this.configVisible;
+        this.menuVisible = false;
+    }
+
+    toggleMenu(event: MouseEvent) {
+        event.stopPropagation();
+        this.menuVisible = !this.menuVisible;
+        this.configVisible = false;
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('app-topbar')) {
+            this.configVisible = false;
+            this.menuVisible = false;
+        }
     }
 
     logout() {

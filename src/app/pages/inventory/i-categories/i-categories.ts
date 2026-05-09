@@ -80,7 +80,7 @@ export class ICategories implements OnInit {
   // ── Navegación ────────────────────────────────────────────────────────────
 
   openDetail(categoria: Categoria) {
-    this.router.navigate(['/inventory/categories', categoria.id], {
+    this.router.navigate(['/system/inventory/categories', categoria.id], {
       state: { categoria }
     });
   }

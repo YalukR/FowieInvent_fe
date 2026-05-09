@@ -1,0 +1,80 @@
+<!-- src/app/pages/inventory/i-categories/i-cdetail/i-cdetail.html -->
+<div class="flex flex-col gap-4">
+
+    <!-- Nav -->
+    <app-i-nav>
+        @if (categoria && !loading) {
+        <p-button label="Editar" icon="pi pi-pencil" size="small"
+            (onClick)="openEdit()">
+        </p-button>
+        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small"
+            (onClick)="onDelete()">
+        </p-button>
+        }
+    </app-i-nav>
+
+    <!-- Error -->
+    @if (error) {
+    <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    }
+
+    <!-- Skeleton -->
+    @if (loading) {
+    <div class="flex flex-col gap-4">
+        <p-skeleton width="40%" height="2rem" borderRadius="6px" />
+        <p-skeleton width="15%" height="1rem" borderRadius="4px" />
+        <p-divider />
+        <div class="grid">
+            @for (i of [1,2]; track i) {
+            <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+                <p-skeleton width="6rem" height="0.75rem" borderRadius="4px" />
+                <p-skeleton width="50%" height="1.25rem" borderRadius="4px" />
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Contenido -->
+    @if (!loading && categoria) {
+    <div class="flex flex-col gap-1">
+        <h2 class="text-2xl font-bold m-0">{{ categoria.nombre }}</h2>
+    </div>
+
+    <p-divider />
+
+    <div class="grid">
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Estado
+            </span>
+            <div class="flex align-items-center gap-2">
+                <i class="pi"
+                    [ngClass]="categoria.activo ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'">
+                </i>
+                <span class="font-medium">{{ categoria.activo ? 'Activa' : 'Inactiva' }}</span>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                ID
+            </span>
+            <span class="text-muted-color text-sm font-mono">{{ categoria.id }}</span>
+        </div>
+
+    </div>
+    }
+
+</div>
+
+<!-- Modal editar -->
+@if (categoria) {
+<app-i-cmodal
+    [visible]="modalVisible"
+    [categoria]="categoria"
+    (closed)="onModalClosed()"
+    (saved)="onModalSaved($event)">
+</app-i-cmodal>
+}

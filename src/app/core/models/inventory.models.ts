@@ -1,5 +1,4 @@
 // src/app/core/models/inventory.models.ts
-
 export interface Categoria {
     id: string;
     tenant?: string;
@@ -10,8 +9,8 @@ export interface Categoria {
 export interface Producto {
     id: string;
     tenant?: string;
-    categoria: Categoria;       // objeto anidado (read)
-    categoria_id?: string;      // UUID plano (write)
+    categoria: Categoria;
+    categoria_id?: string;
     nombre: string;
     unidad_medida: string;
     stock_actual: number;
@@ -22,15 +21,24 @@ export interface Producto {
 
 export interface Movimiento {
     id: string;
-    producto: string;           // UUID (el serializer no anida producto)
-    usuario: string;            // UUID — read_only, lo asigna el back
+    producto: string;
+    usuario: string;
     tipo: 'entrada' | 'salida';
     cantidad: number;
     motivo: string;
-    fecha: string;              // read_only, lo asigna el back
+    fecha: string;
 }
 
-// ── DTOs para crear / editar ──────────────────────────────────────────────────
+// ── DTOs ──────────────────────────────────────────────────────────────────────
+
+export interface CreateCategoriaDto {
+    nombre: string;
+}
+
+export interface UpdateCategoriaDto {
+    nombre?: string;
+    activo?: boolean;
+}
 
 export interface CreateProductoDto {
     nombre: string;
@@ -44,12 +52,8 @@ export interface UpdateProductoDto extends Partial<CreateProductoDto> {
     activo?: boolean;
 }
 
-export interface CreateCategoriaDto {
-    nombre: string;
-}
-
 export interface CreateMovimientoDto {
-    producto: string;           // UUID del producto
+    producto: string;
     tipo: 'entrada' | 'salida';
     cantidad: number;
     motivo?: string;

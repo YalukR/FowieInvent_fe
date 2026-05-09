@@ -1,0 +1,120 @@
+<!-- src/app/pages/inventory/i-products/i-pdetail/i-pdetail.html -->
+<div class="flex flex-col gap-4">
+
+    <!-- Nav -->
+    <app-i-nav>
+        @if (producto && !loading) {
+        <p-button label="Editar" icon="pi pi-pencil" size="small"
+            (onClick)="openEdit()">
+        </p-button>
+        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small"
+            (onClick)="onDelete()">
+        </p-button>
+        }
+    </app-i-nav>
+
+    <!-- Error -->
+    @if (error) {
+    <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    }
+
+    <!-- Skeleton -->
+    @if (loading) {
+    <div class="flex flex-col gap-4">
+        <p-skeleton width="40%" height="2rem" borderRadius="6px" />
+        <p-skeleton width="20%" height="1rem" borderRadius="4px" />
+        <p-divider />
+        <div class="grid">
+            @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+                <p-skeleton width="6rem" height="0.75rem" borderRadius="4px" />
+                <p-skeleton width="60%" height="1.25rem" borderRadius="4px" />
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Contenido -->
+    @if (!loading && producto) {
+    <div class="flex flex-col gap-1">
+        <h2 class="text-2xl font-bold m-0">{{ producto.nombre }}</h2>
+        <div class="flex align-items-center gap-2 mt-1">
+            <p-tag [value]="getStockLabel()" [severity]="getStockSeverity()" />
+            <span class="text-muted-color text-sm">
+                Creado el {{ producto.created_at | date:'dd/MM/yyyy' }}
+            </span>
+        </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Grid de campos -->
+    <div class="grid">
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Categoría
+            </span>
+            <span class="font-medium">{{ producto.categoria.nombre }}</span>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Unidad de medida
+            </span>
+            <span class="font-medium">{{ producto.unidad_medida }}</span>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Stock actual
+            </span>
+            <span class="font-bold text-xl"
+                [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
+                               producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
+                               'var(--p-green-500)'">
+                {{ producto.stock_actual }}
+            </span>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Stock mínimo
+            </span>
+            <span class="font-medium">{{ producto.stock_minimo }}</span>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Estado
+            </span>
+            <div class="flex align-items-center gap-2">
+                <i class="pi"
+                    [ngClass]="producto.activo ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'">
+                </i>
+                <span class="font-medium">{{ producto.activo ? 'Activo' : 'Inactivo' }}</span>
+            </div>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                ID
+            </span>
+            <span class="text-muted-color text-sm font-mono">{{ producto.id }}</span>
+        </div>
+
+    </div>
+    }
+
+</div>
+
+<!-- Modal editar -->
+@if (producto) {
+<app-i-modal
+    [visible]="modalVisible"
+    [producto]="producto"
+    (closed)="onModalClosed()"
+    (saved)="onModalSaved($event)">
+</app-i-modal>
+}

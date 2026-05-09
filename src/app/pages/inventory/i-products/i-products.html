@@ -1,0 +1,137 @@
+<div class="flex flex-col gap-4">
+
+    <!-- Nav con acciones proyectadas -->
+    <app-i-nav>
+        <p-button label="Nuevo producto" icon="pi pi-plus" size="small" (onClick)="openCreate()">
+        </p-button>
+        <p-button label="Exportar" icon="pi pi-file-export" severity="secondary" [outlined]="true" size="small"
+            (onClick)="loadProductos()">
+        </p-button>
+    </app-i-nav>
+
+    <!-- Conteo -->
+    <p class="text-muted-color text-sm m-0">{{ productos.length }} productos registrados</p>
+
+    <!-- Error -->
+    @if (error) {
+    <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    }
+
+    <!-- Skeleton -->
+    @if (loading) {
+    <div class="flex flex-col gap-2">
+        <div class="flex justify-content-end mb-2">
+            <p-skeleton width="14rem" height="2rem" borderRadius="6px" />
+        </div>
+        @for (row of skeletonRows; track row) {
+        <div class="flex align-items-center gap-3 py-2" style="border-bottom: 1px solid var(--surface-border);">
+            <p-skeleton width="30%" height="1rem" borderRadius="4px" />
+            <p-skeleton width="15%" height="1rem" borderRadius="4px" class="hidden md:block" />
+            <p-skeleton width="10%" height="1rem" borderRadius="4px" class="hidden md:block" />
+            <p-skeleton width="6%" height="1rem" borderRadius="4px" styleClass="ml-auto" />
+            <p-skeleton width="8%" height="1.5rem" borderRadius="12px" />
+            <p-skeleton width="6rem" height="1.5rem" borderRadius="6px" />
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Tabla -->
+    @if (!loading) {
+    <p-table [value]="productos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+        [globalFilterFields]="['nombre', 'categoria.nombre', 'unidad_medida']" dataKey="id" styleClass="p-datatable-sm"
+        [tableStyle]="{ 'width': '100%' }" [scrollable]="true" scrollHeight="flex" #dt>
+
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-end">
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input pInputText type="text" placeholder="Buscar producto..."
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nombre">
+                    Nombre <p-sortIcon field="nombre" />
+                </th>
+                <th pSortableColumn="categoria.nombre" class="hidden md:table-cell">
+                    Categoría <p-sortIcon field="categoria.nombre" />
+                </th>
+                <th class="hidden md:table-cell">Unidad</th>
+                <th pSortableColumn="stock_actual" style="text-align:center">
+                    Stock <p-sortIcon field="stock_actual" />
+                </th>
+                <th class="hidden md:table-cell" style="text-align:center">Stock mín.</th>
+                <th style="text-align:center">Estado</th>
+                <th class="hidden md:table-cell" style="text-align:center">Activo</th>
+                <th pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
+                    Acciones
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-producto>
+            <tr>
+                <td class="font-medium">{{ producto.nombre }}</td>
+                <td class="hidden md:table-cell">
+                    <span class="text-sm px-2 py-1 border-round"
+                        style="background: var(--surface-100); border: 1px solid var(--surface-border);">
+                        {{ producto.categoria.nombre }}
+                    </span>
+                </td>
+                <td class="hidden md:table-cell text-muted-color text-sm">
+                    {{ producto.unidad_medida }}
+                </td>
+                <td style="text-align:center">
+                    <span class="font-bold" [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
+                                       producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
+                                       'var(--p-green-500)'">
+                        {{ producto.stock_actual }}
+                    </span>
+                </td>
+                <td class="hidden md:table-cell text-muted-color" style="text-align:center">
+                    {{ producto.stock_minimo }}
+                </td>
+                <td style="text-align:center">
+                    <p-tag [value]="getStockLabel(producto)" [severity]="getStockSeverity(producto)">
+                    </p-tag>
+                </td>
+                <td class="hidden md:table-cell" style="text-align:center">
+                    <i class="pi"
+                        [ngClass]="producto.activo ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'">
+                    </i>
+                </td>
+                <td pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
+                    <div class="flex gap-1 justify-content-center">
+                        <p-button icon="pi pi-eye" severity="secondary" [text]="true" size="small"
+                            (onClick)="openDetail(producto)" />
+                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
+                            (onClick)="openEdit(producto)" />
+                        <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
+                            (onClick)="onDelete(producto)" />
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center text-muted-color py-6">
+                    <i class="pi pi-box text-4xl mb-3 block opacity-30"></i>
+                    No hay productos registrados.
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+    }
+
+</div>
+
+<!-- Modal crear/editar -->
+<app-i-modal [visible]="modalVisible" [producto]="selectedProducto" (closed)="onModalClosed()"
+    (saved)="onModalSaved($event)">
+</app-i-modal>

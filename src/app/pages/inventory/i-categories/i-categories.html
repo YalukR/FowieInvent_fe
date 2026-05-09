@@ -1,9 +1,100 @@
+<!-- src/app/pages/inventory/i-categories/i-categories.html -->
 <div class="flex flex-col gap-4">
 
-    <!-- Nav con acciones proyectadas -->
+    <!-- Nav -->
     <app-i-nav>
+        <p-button label="Nueva categoría" icon="pi pi-plus" size="small">
+        </p-button>
     </app-i-nav>
 
     <!-- Conteo -->
+    <p class="text-muted-color text-sm m-0">{{ categorias.length }} categorías registradas</p>
+
+    <!-- Error -->
+    @if (error) {
+    <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    }
+
+    <!-- Skeleton -->
+    @if (loading) {
+    <div class="flex flex-col gap-2">
+        <div class="flex justify-content-end mb-2">
+            <p-skeleton width="14rem" height="2rem" borderRadius="6px" />
+        </div>
+        @for (row of skeletonRows; track row) {
+        <div class="flex align-items-center gap-3 py-2"
+            style="border-bottom: 1px solid var(--surface-border);">
+            <p-skeleton width="40%" height="1rem" borderRadius="4px" />
+            <p-skeleton width="10%" height="1.5rem" borderRadius="12px" styleClass="ml-auto" />
+            <p-skeleton width="6rem" height="1.5rem" borderRadius="6px" />
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Tabla -->
+    @if (!loading) {
+    <p-table
+        [value]="categorias"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [globalFilterFields]="['nombre']"
+        dataKey="id"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{ 'width': '100%' }"
+        #dt>
+
+        <ng-template pTemplate="caption">
+            <div class="flex justify-content-end">
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input pInputText type="text" placeholder="Buscar categoría..."
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nombre">
+                    Nombre <p-sortIcon field="nombre" />
+                </th>
+                <th style="text-align:center">Activo</th>
+                <th pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
+                    Acciones
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-categoria>
+            <tr>
+                <td class="font-medium">{{ categoria.nombre }}</td>
+                <td style="text-align:center">
+                    <i class="pi"
+                        [ngClass]="categoria.activo ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'">
+                    </i>
+                </td>
+                <td pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
+                    <div class="flex gap-1 justify-content-center">
+                        <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small" />
+                        <p-button icon="pi pi-trash"  severity="danger"    [text]="true" size="small"
+                            (onClick)="onDelete(categoria)" />
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3" class="text-center text-muted-color py-6">
+                    <i class="pi pi-tag text-4xl mb-3 block opacity-30"></i>
+                    No hay categorías registradas.
+                </td>
+            </tr>
+        </ng-template>
+
+    </p-table>
+    }
+
 </div>
-<p>i-categories works!</p>

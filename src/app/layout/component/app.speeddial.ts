@@ -16,12 +16,14 @@ import { filter } from 'rxjs/operators';
     template: `
         <p-toast />
         @if (items.length > 0) {
-        <p-speeddial
-            [model]="items"
-            direction="up"
-            buttonClassName="speeddial-main-btn"
-            [style]="{ position: 'fixed', right: '2rem', bottom: '2rem', zIndex: 1000 }">
-        </p-speeddial>
+        <div class="block md:hidden">
+            <p-speeddial
+                [model]="items"
+                direction="up"
+                buttonClassName="speeddial-main-btn"
+                [style]="{ position: 'fixed', right: '2rem', bottom: '2rem', zIndex: 1000 }">
+            </p-speeddial>
+        </div>
         }
         <style>
             .speeddial-main-btn {
@@ -50,8 +52,6 @@ export class AppSpeeddial implements OnInit, OnDestroy {
 
     items: MenuItem[] = [];
 
-    // ── Menús por módulo ──────────────────────────────────────────────────────
-
     private readonly productosItems: MenuItem[] = [
         {
             icon: 'pi pi-plus',
@@ -78,11 +78,8 @@ export class AppSpeeddial implements OnInit, OnDestroy {
         },
     ];
 
-    // ── Init ──────────────────────────────────────────────────────────────────
-
     ngOnInit() {
         this.updateItems(this.router.url);
-
         this.sub.add(
             this.router.events.pipe(
                 filter(e => e instanceof NavigationEnd)

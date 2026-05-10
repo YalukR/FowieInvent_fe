@@ -30,7 +30,7 @@
     <!-- Tabla -->
     @if (!loading) {
         <p-table
-            [value]="categorias"
+            [value]="categoriasFiltradas"
             [paginator]="true"
             [rows]="10"
             [rowsPerPageOptions]="[10, 25, 50]"
@@ -41,8 +41,19 @@
             #dt>
 
             <ng-template pTemplate="caption">
-                <div class="flex align-items-center justify-content-between">
-                    <span class="text-muted-color text-sm">{{ categorias.length }} categorías registradas</span>
+                <div class="flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div class="flex align-items-center gap-3">
+                        <span class="text-muted-color text-sm">
+                            {{ categoriasFiltradas.length }} de {{ categorias.length }} categorías
+                        </span>
+                        <p-selectbutton
+                            [options]="filtroOpciones"
+                            [(ngModel)]="filtroActivo"
+                            optionLabel="label"
+                            optionValue="value"
+                            [allowEmpty]="false"
+                            size="small" />
+                    </div>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
                         <input pInputText type="text" placeholder="Buscar categoría..."
@@ -88,7 +99,7 @@
                 <tr>
                     <td colspan="4" class="text-center text-muted-color py-6">
                         <i class="pi pi-tag text-4xl mb-3 block opacity-30"></i>
-                        No hay categorías registradas.
+                        No hay categorías {{ filtroActivo !== 'todos' ? filtroActivo : 'registradas' }}.
                     </td>
                 </tr>
             </ng-template>

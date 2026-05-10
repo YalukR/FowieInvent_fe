@@ -20,133 +20,152 @@ import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 
 @Component({
-    selector: 'app-i-categories',
-    standalone: true,
-    imports: [
-        CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
-        InputTextModule, IconFieldModule, InputIconModule,
-        SkeletonModule, MessageModule, SelectButtonModule, INav, ICmodal,
-    ],
-    templateUrl: './i-categories.html',
-    styleUrl: './i-categories.scss',
+  selector: 'app-i-categories',
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
+    InputTextModule, IconFieldModule, InputIconModule,
+    SkeletonModule, MessageModule, SelectButtonModule, INav, ICmodal,
+  ],
+  templateUrl: './i-categories.html',
+  styleUrl: './i-categories.scss',
 })
 export class ICategories implements OnInit, OnDestroy {
 
-    private inventoryService = inject(InventoryService);
-    private inventoryState = inject(InventoryStateService);
-    private confirmService = inject(ConfirmService);
-    private router = inject(Router);
-    private cdr = inject(ChangeDetectorRef);
+  private inventoryService = inject(InventoryService);
+  private inventoryState = inject(InventoryStateService);
+  private confirmService = inject(ConfirmService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
-    private sub = new Subscription();
+  private sub = new Subscription();
 
-    categorias: Categoria[] = [];
-    productosCount: Record<string, number | undefined> = {};
-    loading = true;
-    error: string | null = null;
-    skeletonRows = Array(8);
+  categorias: Categoria[] = [];
+  productosCount: Record<string, number | undefined> = {};
+  loading = true;
+  error: string | null = null;
+  skeletonRows = Array(8);
 
-    modalVisible = false;
-    selectedCategoria: Categoria | null = null;
+  modalVisible = false;
+  selectedCategoria: Categoria | null = null;
 
-    filtroActivo: 'todos' | 'activos' | 'inactivos' = 'todos';
-    filtroOpciones = [
-        { label: 'Todos',     value: 'todos'     },
-        { label: 'Activos',   value: 'activos'   },
-        { label: 'Inactivos', value: 'inactivos' },
-    ];
+  filtroActivo: 'todos' | 'activos' | 'inactivos' = 'todos';
+  filtroOpciones = [
+    { label: 'Todos', value: 'todos' },
+    { label: 'Activos', value: 'activos' },
+    { label: 'Inactivos', value: 'inactivos' },
+  ];
 
-    get categoriasFiltradas(): Categoria[] {
-        if (this.filtroActivo === 'activos')   return this.categorias.filter(c => c.activo);
-        if (this.filtroActivo === 'inactivos') return this.categorias.filter(c => !c.activo);
-        return this.categorias;
+  get categoriasFiltradas(): Categoria[] {
+    if (this.filtroActivo === 'activos') return this.categorias.filter(c => c.activo);
+    if (this.filtroActivo === 'inactivos') return this.categorias.filter(c => !c.activo);
+    return this.categorias;
+  }
+
+  ngOnInit() {
+    this.loadData();
+    this.sub.add(
+      this.inventoryState.openCreateCategoria$.subscribe(() => this.openCreate())
+    );
+  }
+
+  ngOnDestroy() { this.sub.unsubscribe(); }
+
+  loadData() {
+    this.loading = true;
+    this.error = null;
+    forkJoin({
+      categorias: this.inventoryService.getCategorias(),
+      productos: this.inventoryService.getProductos(),
+    }).subscribe({
+      next: ({ categorias, productos }) => {
+        this.categorias = categorias;
+        this.productosCount = {};
+        for (const p of productos) {
+          const cid = p.categoria?.id;
+          if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
+        }
+        this.loading = false;
+        this.cdr.detectChanges(); // fix del loading eterno
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar las categorías.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  openDetail(categoria: Categoria) {
+    this.router.navigate(['/system/inventory/categories', categoria.id], {
+      state: { categoria }
+    });
+  }
+
+  openCreate() {
+    this.selectedCategoria = null;
+    this.modalVisible = true;
+  }
+
+  openEdit(categoria: Categoria) {
+    this.selectedCategoria = categoria;
+    this.modalVisible = true;
+  }
+
+  onModalClosed() {
+    this.modalVisible = false;
+    this.selectedCategoria = null;
+  }
+
+  onModalSaved(categoria: Categoria) {
+    const idx = this.categorias.findIndex(c => c.id === categoria.id);
+    if (idx >= 0) {
+      this.categorias = [
+        ...this.categorias.slice(0, idx),
+        categoria,
+        ...this.categorias.slice(idx + 1),
+      ];
+    } else {
+      this.categorias = [categoria, ...this.categorias];
+      this.productosCount[categoria.id] = 0;
     }
+    this.modalVisible = false;
+    this.selectedCategoria = null;
+  }
 
-    ngOnInit() {
-        this.loadData();
-        this.sub.add(
-            this.inventoryState.openCreateCategoria$.subscribe(() => this.openCreate())
-        );
-    }
+  onDelete(categoria: Categoria) {
+    const tieneProductosActivos = (this.productosCount[categoria.id] ?? 0) > 0;
 
-    ngOnDestroy() { this.sub.unsubscribe(); }
-
-    loadData() {
-        this.loading = true;
-        this.error = null;
-        forkJoin({
-            categorias: this.inventoryService.getCategorias(),
-            productos: this.inventoryService.getProductos(),
-        }).subscribe({
-            next: ({ categorias, productos }) => {
-                this.categorias = categorias;
-                this.productosCount = {};
-                for (const p of productos) {
-                    const cid = p.categoria?.id;
-                    if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
-                }
-                this.loading = false;
-                this.cdr.detectChanges(); // fix del loading eterno
+    if (tieneProductosActivos) {
+      this.confirmService.deleteWithInput({
+        nombre: categoria.nombre,
+        onAccept: () => {
+          this.inventoryService.deleteCategoria(categoria.id).subscribe({
+            next: () => {
+              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+              delete this.productosCount[categoria.id];
             },
             error: () => {
-                this.error = 'No se pudieron cargar las categorías.';
-                this.loading = false;
-                this.cdr.detectChanges();
+              this.error = 'No se pudo eliminar. Intenta de nuevo.';
             },
-        });
+          });
+        },
+      });
+    } else {
+      this.confirmService.delete({
+        nombre: categoria.nombre,
+        onAccept: () => {
+          this.inventoryService.deleteCategoria(categoria.id).subscribe({
+            next: () => {
+              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+              delete this.productosCount[categoria.id];
+            },
+            error: () => {
+              this.error = 'No se pudo eliminar. Intenta de nuevo.';
+            },
+          });
+        },
+      });
     }
-
-    openDetail(categoria: Categoria) {
-        this.router.navigate(['/system/inventory/categories', categoria.id], {
-            state: { categoria }
-        });
-    }
-
-    openCreate() {
-        this.selectedCategoria = null;
-        this.modalVisible = true;
-    }
-
-    openEdit(categoria: Categoria) {
-        this.selectedCategoria = categoria;
-        this.modalVisible = true;
-    }
-
-    onModalClosed() {
-        this.modalVisible = false;
-        this.selectedCategoria = null;
-    }
-
-    onModalSaved(categoria: Categoria) {
-        const idx = this.categorias.findIndex(c => c.id === categoria.id);
-        if (idx >= 0) {
-            this.categorias = [
-                ...this.categorias.slice(0, idx),
-                categoria,
-                ...this.categorias.slice(idx + 1),
-            ];
-        } else {
-            this.categorias = [categoria, ...this.categorias];
-            this.productosCount[categoria.id] = 0;
-        }
-        this.modalVisible = false;
-        this.selectedCategoria = null;
-    }
-
-    onDelete(categoria: Categoria) {
-        this.confirmService.delete({
-            nombre: categoria.nombre,
-            onAccept: () => {
-                this.inventoryService.deleteCategoria(categoria.id).subscribe({
-                    next: () => {
-                        this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-                        delete this.productosCount[categoria.id];
-                    },
-                    error: () => {
-                        this.error = 'No se pudo eliminar. Intenta de nuevo.';
-                    },
-                });
-            }
-        });
-    }
+  }
 }

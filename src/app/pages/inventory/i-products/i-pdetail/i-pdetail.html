@@ -1,14 +1,13 @@
-<!-- src/app/pages/inventory/i-products/i-pdetail/i-pdetail.html -->
 <div class="flex flex-col gap-4">
 
     <!-- Nav -->
     <app-i-nav>
         @if (producto && !loading) {
-        <p-button label="Editar" icon="pi pi-pencil" size="small"
-            (onClick)="openEdit()">
+        <p-button label="Editar" icon="pi pi-pencil" size="small" (onClick)="openEdit()">
         </p-button>
-        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small"
-            (onClick)="onDelete()">
+        <p-button label="Movimiento" icon="pi pi-arrow-right-arrow-left" severity="secondary" size="small"
+            (onClick)="openMovimiento()" />
+        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="onDelete()">
         </p-button>
         }
     </app-i-nav>
@@ -70,8 +69,7 @@
             <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
                 Stock actual
             </span>
-            <span class="font-bold text-xl"
-                [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
+            <span class="font-bold text-xl" [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
                                producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
                                'var(--p-green-500)'">
                 {{ producto.stock_actual }}
@@ -107,14 +105,74 @@
     </div>
     }
 
+    <!-- Historial de movimientos -->
+    @if (!loading && producto) {
+    <p-divider />
+
+    <div class="flex flex-col gap-3">
+        <div class="flex align-items-center justify-content-between">
+            <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
+                Historial de movimientos
+            </span>
+            <p-tag [value]="movimientos.length + ' movimientos'" severity="secondary" />
+        </div>
+
+        @if (loadingMovimientos) {
+        <div class="flex flex-col gap-2">
+            @for (i of [1,2,3]; track i) {
+            <div class="flex align-items-center gap-3 py-2" style="border-bottom: 1px solid var(--surface-border);">
+                <p-skeleton width="8%" height="1.5rem" borderRadius="12px" />
+                <p-skeleton width="10%" height="1rem" borderRadius="4px" />
+                <p-skeleton width="40%" height="1rem" borderRadius="4px" />
+                <p-skeleton width="15%" height="1rem" borderRadius="4px" styleClass="ml-auto" />
+            </div>
+            }
+        </div>
+        } @else if (movimientos.length === 0) {
+        <div class="flex flex-col align-items-center gap-2 py-5 text-muted-color">
+            <i class="pi pi-history text-4xl"></i>
+            <span class="text-sm">Sin movimientos registrados.</span>
+        </div>
+        } @else {
+        <p-table [value]="movimientos" [stripedRows]="true" size="small">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Tipo</th>
+                    <th class="text-center">Cantidad</th>
+                    <th>Motivo</th>
+                    <th class="text-right">Fecha</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-mov>
+                <tr>
+                    <td>
+                        <p-tag [value]="mov.tipo === 'entrada' ? 'Entrada' : 'Salida'"
+                            [severity]="mov.tipo === 'entrada' ? 'success' : 'danger'" />
+                    </td>
+                    <td class="text-center font-semibold">
+                        <span [style.color]="mov.tipo === 'entrada' ? 'var(--p-green-500)' : 'var(--p-red-500)'">
+                            {{ mov.tipo === 'entrada' ? '+' : '-' }}{{ mov.cantidad }}
+                        </span>
+                    </td>
+                    <td class="text-muted-color text-sm">
+                        {{ mov.motivo || '—' }}
+                    </td>
+                    <td class="text-right text-muted-color text-sm">
+                        {{ mov.fecha | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        }
+    </div>
+    }
+
 </div>
 
 <!-- Modal editar -->
 @if (producto) {
-<app-i-modal
-    [visible]="modalVisible"
-    [producto]="producto"
-    (closed)="onModalClosed()"
-    (saved)="onModalSaved($event)">
+<app-i-modal [visible]="modalVisible" [producto]="producto" (closed)="onModalClosed()" (saved)="onModalSaved($event)">
 </app-i-modal>
+<app-i-movimiento-modal [visible]="movimientoVisible" [producto]="producto" (closed)="onMovimientoClosed()"
+    (saved)="onMovimientoSaved($event)" />
 }

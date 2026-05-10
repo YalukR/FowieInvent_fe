@@ -13,11 +13,13 @@ import { FormsModule } from '@angular/forms';
 import { IModal } from './i-pmodal/i-modal';
 import { InventoryService } from '../../../core/service/inventory.service';
 import { ConfirmService } from '../../../core/service/confirm.service';
-import { Producto } from '../../../core/models/inventory.models';
+import { Producto, Movimiento } from '../../../core/models/inventory.models';
+import { IMovimientoModal } from './i-movimiento-modal/i-movimiento-modal';
 import { InventoryStateService } from '@/app/core/service/inventory-state.service';
 import { Subscription } from 'rxjs';
 import { INav } from '../i-nav/i-nav';
 import { Router } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-i-products',
@@ -26,6 +28,7 @@ import { Router } from '@angular/router';
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
     SkeletonModule, MessageModule, SelectButtonModule, IModal, INav,
+    IMovimientoModal, TooltipModule
   ],
   templateUrl: './i-products.html',
   styleUrl: './i-products.scss',
@@ -40,6 +43,8 @@ export class IProducts implements OnInit, OnDestroy {
   private sub = new Subscription();
 
   productos: Producto[] = [];
+  movimientoVisible = false;
+  selectedMovimiento: Producto | null = null;
   loading = true;
   error: string | null = null;
   skeletonRows = Array(10);
@@ -105,6 +110,27 @@ export class IProducts implements OnInit, OnDestroy {
     this.router.navigate(['/system/inventory/products', producto.id], {
       state: { producto }
     });
+  }
+
+  openMovimiento(producto: Producto) {
+    this.selectedMovimiento = producto;
+    this.movimientoVisible = true;
+  }
+
+  onMovimientoSaved(mov: Movimiento) {
+    // Actualiza el stock localmente sin recargar
+    this.productos = this.productos.map(p =>
+      p.id === mov.producto
+        ? { ...p, stock_actual: p.stock_actual + (mov.tipo === 'entrada' ? mov.cantidad : -mov.cantidad) }
+        : p
+    );
+    this.movimientoVisible = false;
+    this.selectedMovimiento = null;
+  }
+
+  onMovimientoClosed() {
+    this.movimientoVisible = false;
+    this.selectedMovimiento = null;
   }
 
   onModalSaved(producto: Producto) {

@@ -1,4 +1,3 @@
-// src/app/pages/inventory/i-products/i-pdetail/i-pdetail.ts
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,8 +11,10 @@ import { IModal } from '../i-pmodal/i-modal';
 import { InventoryService } from '../../../../core/service/inventory.service';
 import { ConfirmService } from '../../../../core/service/confirm.service';
 import { InventoryStateService } from '../../../../core/service/inventory-state.service';
-import { Producto } from '../../../../core/models/inventory.models';
+import { Producto, Movimiento } from '../../../../core/models/inventory.models';
 import { Subscription } from 'rxjs';
+import { IMovimientoModal } from '../i-movimiento-modal/i-movimiento-modal';
+import { TableModule } from 'primeng/table';
 
 @Component({
     selector: 'app-i-pdetail',
@@ -21,7 +22,7 @@ import { Subscription } from 'rxjs';
     imports: [
         CommonModule, ButtonModule, TagModule,
         SkeletonModule, MessageModule, DividerModule,
-        INav, IModal,
+        INav, IModal, IMovimientoModal, TableModule
     ],
     templateUrl: './i-pdetail.html',
 })
@@ -33,8 +34,11 @@ export class IPdetail implements OnInit, OnDestroy {
     private confirmService = inject(ConfirmService);
     private inventoryState = inject(InventoryStateService);
     private sub = new Subscription();
+    movimientoVisible = false;
 
     producto: Producto | null = null;
+    movimientos: Movimiento[] = [];
+    loadingMovimientos = false;
     loading = true;
     error: string | null = null;
     modalVisible = false;
@@ -46,6 +50,7 @@ export class IPdetail implements OnInit, OnDestroy {
         if (state?.producto) {
             this.producto = state.producto;
             this.loading = false;
+            this.loadMovimientos(state.producto.id);
         } else {
             const id = this.route.snapshot.paramMap.get('id');
             if (id) this.loadProducto(id);
@@ -54,6 +59,9 @@ export class IPdetail implements OnInit, OnDestroy {
 
         this.sub.add(this.inventoryState.openEditProducto$.subscribe(() => this.openEdit()));
         this.sub.add(this.inventoryState.deleteProducto$.subscribe(() => this.onDelete()));
+        this.sub.add(
+            this.inventoryState.openMovimiento$.subscribe(() => this.openMovimiento())
+        );
     }
 
     ngOnDestroy() {
@@ -64,8 +72,21 @@ export class IPdetail implements OnInit, OnDestroy {
         this.loading = true;
         this.error = null;
         this.inventoryService.getProducto(id).subscribe({
-            next: producto => { this.producto = producto; this.loading = false; },
+            next: producto => { this.producto = producto; this.loading = false; this.loadMovimientos(id); },
             error: () => { this.error = 'No se pudo cargar el producto.'; this.loading = false; },
+        });
+    }
+
+    loadMovimientos(productoId: string) {
+        this.loadingMovimientos = true;
+        this.inventoryService.getMovimientosByProducto(productoId).subscribe({
+            next: movimientos => {
+                this.movimientos = movimientos.sort(
+                    (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+                );
+                this.loadingMovimientos = false;
+            },
+            error: () => { this.loadingMovimientos = false; },
         });
     }
 
@@ -98,5 +119,23 @@ export class IPdetail implements OnInit, OnDestroy {
         if (this.producto.stock_actual === 0) return 'Sin stock';
         if (this.producto.stock_actual <= this.producto.stock_minimo) return 'Stock bajo';
         return 'OK';
+    }
+
+
+    // Agrega métodos:
+    openMovimiento() { this.movimientoVisible = true; }
+    onMovimientoClosed() { this.movimientoVisible = false; }
+
+    // En onMovimientoSaved, recarga el historial:
+    onMovimientoSaved(mov: Movimiento) {
+        if (this.producto) {
+            this.producto = {
+                ...this.producto,
+                stock_actual: this.producto.stock_actual +
+                    (mov.tipo === 'entrada' ? mov.cantidad : -mov.cantidad),
+            };
+            this.loadMovimientos(this.producto.id);
+        }
+        this.movimientoVisible = false;
     }
 }

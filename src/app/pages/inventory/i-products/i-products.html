@@ -105,6 +105,9 @@
                             (onClick)="openDetail(producto)" />
                         <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
                             (onClick)="openEdit(producto)" />
+                        <p-button icon="pi pi-arrow-right-arrow-left" severity="secondary" [text]="true" size="small"
+                            pTooltip="Registrar movimiento" tooltipPosition="top"
+                            (onClick)="openMovimiento(producto)" />
                         <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
                             (onClick)="onDelete(producto)" />
                     </div>
@@ -129,3 +132,6 @@
 <!-- Modal crear/editar -->
 <app-i-modal [visible]="modalVisible" [producto]="selectedProducto" (closed)="onModalClosed()"
     (saved)="onModalSaved($event)" />
+
+<app-i-movimiento-modal [visible]="movimientoVisible" [producto]="selectedMovimiento" (closed)="onMovimientoClosed()"
+    (saved)="onMovimientoSaved($event)" />

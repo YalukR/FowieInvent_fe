@@ -37,8 +37,8 @@ export class AppSpeeddial implements OnInit, OnDestroy {
 
     private messageService = inject(MessageService);
     private inventoryState = inject(InventoryStateService);
-    private router         = inject(Router);
-    private sub            = new Subscription();
+    private router = inject(Router);
+    private sub = new Subscription();
 
     items: MenuItem[] = [];
 
@@ -70,6 +70,11 @@ export class AppSpeeddial implements OnInit, OnDestroy {
                 icon: 'pi pi-pencil',
                 tooltipOptions: { tooltipLabel: 'Editar producto' },
                 command: () => this.inventoryState.triggerEditProducto(null as any),
+            },
+            {
+                icon: 'pi pi-arrow-right-arrow-left',
+                tooltipOptions: { tooltipLabel: 'Registrar movimiento' },
+                command: () => this.inventoryState.triggerMovimiento(), 
             },
             {
                 icon: 'pi pi-trash',
@@ -135,4 +140,6 @@ export class AppSpeeddial implements OnInit, OnDestroy {
             this.items = [];
         }
     }
+
+
 }

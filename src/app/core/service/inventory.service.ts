@@ -1,7 +1,7 @@
 // src/app/core/service/inventory.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
     Categoria,
@@ -59,6 +59,18 @@ export class InventoryService {
 
     deleteProducto(id: string): Observable<void> {
         return this.http.delete<void>(`${this.base}/inventory/productos/${id}/`);
+    }
+
+    activarProductos(ids: string[]): Observable<void> {
+        return new Observable(observer => {
+            const calls = ids.map(id =>
+                this.http.patch(`${this.base}/inventory/productos/${id}/`, { activo: true })
+            );
+            forkJoin(calls).subscribe({
+                next: () => { observer.next(); observer.complete(); },
+                error: (e) => observer.error(e),
+            });
+        });
     }
 
     // ── Movimientos ───────────────────────────────────────────────────────────

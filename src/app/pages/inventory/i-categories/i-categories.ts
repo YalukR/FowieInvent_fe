@@ -18,6 +18,8 @@ import { ConfirmService } from '../../../core/service/confirm.service';
 import { Categoria } from '../../../core/models/inventory.models';
 import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
+import { ReactivarService } from './reactivar-productos-dialog/reactivar-productos-dialog';
+import { Producto } from '../../../core/models/inventory.models';
 
 @Component({
   selector: 'app-i-categories',
@@ -32,6 +34,8 @@ import { Subscription, forkJoin } from 'rxjs';
 })
 export class ICategories implements OnInit, OnDestroy {
 
+  private reactivarService = inject(ReactivarService);
+
   private inventoryService = inject(InventoryService);
   private inventoryState = inject(InventoryStateService);
   private confirmService = inject(ConfirmService);
@@ -41,6 +45,7 @@ export class ICategories implements OnInit, OnDestroy {
   private sub = new Subscription();
 
   categorias: Categoria[] = [];
+  productos: Producto[] = []
   productosCount: Record<string, number | undefined> = {};
   loading = true;
   error: string | null = null;
@@ -80,13 +85,14 @@ export class ICategories implements OnInit, OnDestroy {
     }).subscribe({
       next: ({ categorias, productos }) => {
         this.categorias = categorias;
+        this.productos = productos;
         this.productosCount = {};
         for (const p of productos) {
           const cid = p.categoria?.id;
           if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
         }
         this.loading = false;
-        this.cdr.detectChanges(); // fix del loading eterno
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'No se pudieron cargar las categorías.';
@@ -117,20 +123,50 @@ export class ICategories implements OnInit, OnDestroy {
     this.selectedCategoria = null;
   }
 
-  onModalSaved(categoria: Categoria) {
-    const idx = this.categorias.findIndex(c => c.id === categoria.id);
+  onModalSaved(categoriaActualizada: Categoria) {
+    const categoriaAnterior = this.categorias.find(c => c.id === categoriaActualizada.id);
+    const seActivo = !categoriaAnterior?.activo && categoriaActualizada.activo;
+
+    // Actualiza la lista
+    const idx = this.categorias.findIndex(c => c.id === categoriaActualizada.id);
     if (idx >= 0) {
       this.categorias = [
         ...this.categorias.slice(0, idx),
-        categoria,
+        categoriaActualizada,
         ...this.categorias.slice(idx + 1),
       ];
     } else {
-      this.categorias = [categoria, ...this.categorias];
-      this.productosCount[categoria.id] = 0;
+      this.categorias = [categoriaActualizada, ...this.categorias];
+      this.productosCount[categoriaActualizada.id] = 0;
     }
+
     this.modalVisible = false;
     this.selectedCategoria = null;
+
+    // Si se activó la categoría, busca sus productos inactivos
+    if (seActivo) {
+      const inactivos = this.productos.filter(
+        p => p.categoria.id === categoriaActualizada.id && !p.activo
+      );
+      if (inactivos.length > 0) {
+        this.reactivarService.open({
+          productos: inactivos,
+          onDone: (reactivados) => {
+            if (reactivados.length > 0) {
+              // Actualiza los productos en memoria
+              this.productos = this.productos.map(p =>
+                reactivados.find(r => r.id === p.id) ?? p
+              );
+              this.productosCount[categoriaActualizada.id] =
+                this.productos.filter(
+                  p => p.categoria.id === categoriaActualizada.id && p.activo
+                ).length;
+              this.cdr.detectChanges();
+            }
+          },
+        });
+      }
+    }
   }
 
   onDelete(categoria: Categoria) {

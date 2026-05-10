@@ -8,13 +8,15 @@ import { AppSpeeddial } from './app.speeddial';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ReactivarProductosDialog } from '@/app/pages/inventory/i-categories/reactivar-productos-dialog/reactivar-productos-dialog';
+import { ConfirmInputDialog } from '@/app/shared/confirm-input-dialog';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
     imports: [
         CommonModule, AppTopbar, AppSidebar, AppSpeeddial,
-        RouterModule, AppFooter, ConfirmDialogModule,
+        RouterModule, AppFooter, ConfirmDialogModule, ReactivarProductosDialog, ConfirmInputDialog
     ],
     providers: [],
     template: `
@@ -30,6 +32,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
         <div class="layout-mask"></div>
         <app-speeddial></app-speeddial>
         <p-confirmdialog />
+        <app-reactivar-productos-dialog />
+        <app-confirm-input-dialog />
     </div>`
 })
 export class AppLayout {
@@ -48,13 +52,13 @@ export class AppLayout {
 
     containerClass = computed(() => {
         const config = this.layoutService.layoutConfig();
-        const state  = this.layoutService.layoutState();
+        const state = this.layoutService.layoutState();
         return {
-            'layout-overlay':          config.menuMode === 'overlay',
-            'layout-static':           config.menuMode === 'static',
-            'layout-static-inactive':  state.staticMenuDesktopInactive && config.menuMode === 'static',
-            'layout-overlay-active':   state.overlayMenuActive,
-            'layout-mobile-active':    state.mobileMenuActive,
+            'layout-overlay': config.menuMode === 'overlay',
+            'layout-static': config.menuMode === 'static',
+            'layout-static-inactive': state.staticMenuDesktopInactive && config.menuMode === 'static',
+            'layout-overlay-active': state.overlayMenuActive,
+            'layout-mobile-active': state.mobileMenuActive,
         };
     });
 }

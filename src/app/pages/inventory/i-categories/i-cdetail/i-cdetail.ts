@@ -98,17 +98,31 @@ export class ICdetail implements OnInit, OnDestroy {
     openEdit() { this.modalVisible = true; }
     onModalClosed() { this.modalVisible = false; }
     onModalSaved(categoria: Categoria) { this.categoria = categoria; this.modalVisible = false; }
-
     onDelete() {
         if (!this.categoria) return;
-        this.confirmService.delete({
-            nombre: this.categoria.nombre,
-            onAccept: () => {
-                this.inventoryService.deleteCategoria(this.categoria!.id).subscribe({
-                    next: () => this.router.navigate(['/inventory/categories']),
-                    error: () => this.error = 'No se pudo eliminar. Intenta de nuevo.',
-                });
-            }
-        });
+
+        const tieneProductosActivos = this.productos.some(p => p.activo);
+
+        if (tieneProductosActivos) {
+            this.confirmService.deleteWithInput({
+                nombre: this.categoria.nombre,
+                onAccept: () => {
+                    this.inventoryService.deleteCategoria(this.categoria!.id).subscribe({
+                        next: () => this.router.navigate(['/system/inventory/categories']),
+                        error: () => this.error = 'No se pudo eliminar. Intenta de nuevo.',
+                    });
+                },
+            });
+        } else {
+            this.confirmService.delete({
+                nombre: this.categoria.nombre,
+                onAccept: () => {
+                    this.inventoryService.deleteCategoria(this.categoria!.id).subscribe({
+                        next: () => this.router.navigate(['/system/inventory/categories']),
+                        error: () => this.error = 'No se pudo eliminar. Intenta de nuevo.',
+                    });
+                },
+            });
+        }
     }
 }

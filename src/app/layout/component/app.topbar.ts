@@ -19,9 +19,6 @@ import { AuthService } from '@/app/core/service/auth.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/system">
-                <span class="w-2rem h-2rem border-circle bg-primary flex align-items-center justify-content-center">
-                    <i class="pi pi-box text-white text-xs"></i>
-                </span>
                 <span>FowieInvent</span>
             </a>
         </div>

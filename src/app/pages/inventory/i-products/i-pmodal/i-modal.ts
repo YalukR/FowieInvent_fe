@@ -9,6 +9,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
 import { InventoryService } from '../../../../core/service/inventory.service';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import {
     Categoria,
     Producto,
@@ -21,7 +22,7 @@ import {
     standalone: true,
     imports: [
         CommonModule, FormsModule, DialogModule, ButtonModule,
-        InputTextModule, InputNumberModule, SelectModule, MessageModule,
+        InputTextModule, InputNumberModule, SelectModule, MessageModule, ToggleSwitchModule,
     ],
     templateUrl: './i-modal.html',
     styleUrl: './i-modal.scss',
@@ -31,32 +32,33 @@ export class IModal implements OnInit {
     private inventoryService = inject(InventoryService);
 
     // ── I/O ───────────────────────────────────────────────────────────────────
-    visible  = input<boolean>(false);
+    visible = input<boolean>(false);
     producto = input<Producto | null>(null);
 
     closed = output<void>();
-    saved  = output<Producto>();
+    saved = output<Producto>();
 
     // ── Estado ────────────────────────────────────────────────────────────────
     categorias: Categoria[] = [];
-    loading         = false;
+    loading = false;
     error: string | null = null;
 
     // Inline nueva categoría
-    showNuevaCategoria  = false;
-    nuevaCategoriaName  = '';
-    loadingCategoria    = false;
+    showNuevaCategoria = false;
+    nuevaCategoriaName = '';
+    loadingCategoria = false;
     errorCategoria: string | null = null;
 
     // ── Form ──────────────────────────────────────────────────────────────────
-    nombre        = '';
-    categoria_id  = '';
+    nombre = '';
+    categoria_id = '';
     unidad_medida = '';
-    stock_actual  = 0;
-    stock_minimo  = 0;
+    stock_actual = 0;
+    stock_minimo = 0;
+    activo = true;
 
     get isEdit(): boolean { return !!this.producto(); }
-    get title(): string   { return this.isEdit ? 'Editar producto' : 'Nuevo producto'; }
+    get title(): string { return this.isEdit ? 'Editar producto' : 'Nuevo producto'; }
 
     ngOnInit() {
         this.loadCategorias();
@@ -73,17 +75,19 @@ export class IModal implements OnInit {
         this.cancelNuevaCategoria();
         const p = this.producto();
         if (p) {
-            this.nombre        = p.nombre;
-            this.categoria_id  = p.categoria.id;
+            this.nombre = p.nombre;
+            this.categoria_id = p.categoria.id;
             this.unidad_medida = p.unidad_medida;
-            this.stock_actual  = p.stock_actual;
-            this.stock_minimo  = p.stock_minimo;
+            this.stock_actual = p.stock_actual;
+            this.stock_minimo = p.stock_minimo;
+            this.activo = p.activo
         } else {
-            this.nombre        = '';
-            this.categoria_id  = '';
+            this.nombre = '';
+            this.categoria_id = '';
             this.unidad_medida = '';
-            this.stock_actual  = 0;
-            this.stock_minimo  = 0;
+            this.stock_actual = 0;
+            this.stock_minimo = 0;
+            this.activo = true
         }
     }
 
@@ -109,11 +113,11 @@ export class IModal implements OnInit {
         }
 
         this.loadingCategoria = true;
-        this.errorCategoria   = null;
+        this.errorCategoria = null;
 
         this.inventoryService.createCategoria({ nombre }).subscribe({
             next: cat => {
-                this.categorias  = [...this.categorias, cat];
+                this.categorias = [...this.categorias, cat];
                 this.categoria_id = cat.id;
                 this.loadingCategoria = false;
                 this.cancelNuevaCategoria();
@@ -138,31 +142,32 @@ export class IModal implements OnInit {
         }
 
         this.loading = true;
-        this.error   = null;
+        this.error = null;
         const p = this.producto();
 
         if (p) {
             const dto: UpdateProductoDto = {
-                nombre:        this.nombre,
-                categoria_id:  this.categoria_id,
+                nombre: this.nombre,
+                categoria_id: this.categoria_id,
                 unidad_medida: this.unidad_medida,
-                stock_minimo:  this.stock_minimo,
+                stock_minimo: this.stock_minimo,
+                activo: this.activo,
             };
             this.inventoryService.updateProducto(p.id, dto).subscribe({
                 next: updated => { this.loading = false; this.saved.emit(updated); },
-                error: ()     => { this.loading = false; this.error = 'Error al guardar. Intenta de nuevo.'; },
+                error: () => { this.loading = false; this.error = 'Error al guardar. Intenta de nuevo.'; },
             });
         } else {
             const dto: CreateProductoDto = {
-                nombre:        this.nombre,
-                categoria_id:  this.categoria_id,
+                nombre: this.nombre,
+                categoria_id: this.categoria_id,
                 unidad_medida: this.unidad_medida,
-                stock_actual:  this.stock_actual,
-                stock_minimo:  this.stock_minimo,
+                stock_actual: this.stock_actual,
+                stock_minimo: this.stock_minimo,
             };
             this.inventoryService.createProducto(dto).subscribe({
                 next: created => { this.loading = false; this.saved.emit(created); },
-                error: ()     => { this.loading = false; this.error = 'Error al crear. Intenta de nuevo.'; },
+                error: () => { this.loading = false; this.error = 'Error al crear. Intenta de nuevo.'; },
             });
         }
     }

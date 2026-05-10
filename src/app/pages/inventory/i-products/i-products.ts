@@ -164,6 +164,21 @@ export class IProducts implements OnInit, OnDestroy {
     });
   }
 
+  onReactivar(producto: Producto) {
+    this.inventoryService.updateProducto(producto.id, { activo: true }).subscribe({
+      next: (actualizado) => {
+        this.productos = this.productos.map(p =>
+          p.id === actualizado.id ? actualizado : p
+        );
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'No se pudo reactivar. Intenta de nuevo.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   getStockSeverity(producto: Producto): 'success' | 'warn' | 'danger' {
     if (producto.stock_actual === 0) return 'danger';
     if (producto.stock_actual <= producto.stock_minimo) return 'warn';

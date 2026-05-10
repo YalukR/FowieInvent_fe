@@ -11,23 +11,23 @@ import { Producto } from '@/app/core/models/inventory.models';
 import { InventoryService } from '@/app/core/service/inventory.service';
 
 export interface ReactivarOptions {
-    productos: Producto[];
-    onDone: (reactivados: Producto[]) => void;
+  productos: Producto[];
+  onDone: (reactivados: Producto[]) => void;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ReactivarService {
-    private _open$ = new Subject<ReactivarOptions | null>();
-    readonly open$ = this._open$.asObservable();
-    open(opts: ReactivarOptions) { this._open$.next(opts); }
-    close() { this._open$.next(null); }
+  private _open$ = new Subject<ReactivarOptions | null>();
+  readonly open$ = this._open$.asObservable();
+  open(opts: ReactivarOptions) { this._open$.next(opts); }
+  close() { this._open$.next(null); }
 }
 
 @Component({
-    selector: 'app-reactivar-productos-dialog',
-    standalone: true,
-    imports: [CommonModule, FormsModule, DialogModule, ButtonModule, CheckboxModule, MessageModule],
-    template: `
+  selector: 'app-reactivar-productos-dialog',
+  standalone: true,
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, CheckboxModule, MessageModule],
+  template: `
         <p-dialog
             header="¿Reactivar productos?"
             [visible]="visible"
@@ -84,60 +84,61 @@ export class ReactivarService {
     `,
 })
 export class ReactivarProductosDialog implements OnInit, OnDestroy {
-    private reactivarService = inject(ReactivarService);
-    private inventoryService = inject(InventoryService);
-    private sub = new Subscription();
+  private reactivarService = inject(ReactivarService);
+  private inventoryService = inject(InventoryService);
+  private sub = new Subscription();
 
-    visible = false;
-    loading = false;
-    error: string | null = null;
-    productos: Producto[] = [];
-    seleccionados: string[] = [];
-    private onDone?: (reactivados: Producto[]) => void;
+  visible = false;
+  loading = false;
+  error: string | null = null;
+  productos: Producto[] = [];
+  seleccionados: string[] = [];
+  private onDone?: (reactivados: Producto[]) => void;
 
-    ngOnInit() {
-        this.sub.add(
-            this.reactivarService.open$.subscribe(opts => {
-                if (opts) {
-                    this.productos    = opts.productos;
-                    this.seleccionados = opts.productos.map(p => p.id); // todos pre-seleccionados
-                    this.onDone       = opts.onDone;
-                    this.error        = null;
-                    this.loading      = false;
-                    this.visible      = true;
-                } else {
-                    this.visible = false;
-                }
-            })
-        );
-    }
+  ngOnInit() {
+    this.sub.add(
+      this.reactivarService.open$.subscribe(opts => {
+        if (opts) {
+          this.productos = opts.productos;
+          this.seleccionados = opts.productos.map(p => p.id); // todos pre-seleccionados
+          this.onDone = opts.onDone;
+          this.error = null;
+          this.loading = false;
+          this.visible = true;
+        } else {
+          this.visible = false;
+        }
+      })
+    );
+  }
 
-    ngOnDestroy() { this.sub.unsubscribe(); }
+  ngOnDestroy() { this.sub.unsubscribe(); }
 
-    onActivar() {
-        if (this.seleccionados.length === 0) return;
-        this.loading = true;
-        this.error   = null;
+  onActivar() {
+    if (this.seleccionados.length === 0) return;
+    this.loading = true;
+    this.error = null;
 
-        this.inventoryService.activarProductos(this.seleccionados).subscribe({
-            next: () => {
-                const reactivados = this.productos.filter(p =>
-                    this.seleccionados.includes(p.id)
-                ).map(p => ({ ...p, activo: true }));
-                this.loading = false;
-                this.visible = false;
-                this.onDone?.(reactivados);
-            },
-            error: () => {
-                this.loading = false;
-                this.error = 'No se pudieron reactivar. Intenta de nuevo.';
-            },
-        });
-    }
-
-    onDejar() {
+    this.inventoryService.activarProductos(this.seleccionados).subscribe({
+      next: () => {
+        const reactivados = this.productos
+          .filter(p => this.seleccionados.includes(p.id))
+          .map(p => ({ ...p, activo: true }));
+        this.loading = false;
         this.visible = false;
-        this.onDone?.([]);
+        this.onDone?.(reactivados);
         this.reactivarService.close();
-    }
+      },
+      error: () => {
+        this.loading = false;
+        this.error = 'No se pudieron reactivar. Intenta de nuevo.';
+      },
+    });
+  }
+
+  onDejar() {
+    this.visible = false;
+    this.onDone?.([]);
+    this.reactivarService.close();
+  }
 }

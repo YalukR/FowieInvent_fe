@@ -20,6 +20,7 @@ import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { ReactivarService } from './reactivar-productos-dialog/reactivar-productos-dialog';
 import { Producto } from '../../../core/models/inventory.models';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-i-categories',
@@ -28,6 +29,7 @@ import { Producto } from '../../../core/models/inventory.models';
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
     SkeletonModule, MessageModule, SelectButtonModule, INav, ICmodal,
+    TooltipModule,
   ],
   templateUrl: './i-categories.html',
   styleUrl: './i-categories.scss',
@@ -127,7 +129,6 @@ export class ICategories implements OnInit, OnDestroy {
     const categoriaAnterior = this.categorias.find(c => c.id === categoriaActualizada.id);
     const seActivo = !categoriaAnterior?.activo && categoriaActualizada.activo;
 
-    // Actualiza la lista
     const idx = this.categorias.findIndex(c => c.id === categoriaActualizada.id);
     if (idx >= 0) {
       this.categorias = [
@@ -143,27 +144,27 @@ export class ICategories implements OnInit, OnDestroy {
     this.modalVisible = false;
     this.selectedCategoria = null;
 
-    // Si se activó la categoría, busca sus productos inactivos
     if (seActivo) {
       const inactivos = this.productos.filter(
         p => p.categoria.id === categoriaActualizada.id && !p.activo
       );
       if (inactivos.length > 0) {
-        this.reactivarService.open({
-          productos: inactivos,
-          onDone: (reactivados) => {
-            if (reactivados.length > 0) {
-              // Actualiza los productos en memoria
-              this.productos = this.productos.map(p =>
-                reactivados.find(r => r.id === p.id) ?? p
-              );
-              this.productosCount[categoriaActualizada.id] =
-                this.productos.filter(
-                  p => p.categoria.id === categoriaActualizada.id && p.activo
-                ).length;
-              this.cdr.detectChanges();
-            }
-          },
+        setTimeout(() => {
+          this.reactivarService.open({
+            productos: inactivos,
+            onDone: (reactivados) => {
+              if (reactivados.length > 0) {
+                this.productos = this.productos.map(p =>
+                  reactivados.find(r => r.id === p.id) ?? p
+                );
+                this.productosCount[categoriaActualizada.id] =
+                  this.productos.filter(
+                    p => p.categoria.id === categoriaActualizada.id && p.activo
+                  ).length;
+                this.cdr.detectChanges();
+              }
+            },
+          });
         });
       }
     }
@@ -172,36 +173,71 @@ export class ICategories implements OnInit, OnDestroy {
   onDelete(categoria: Categoria) {
     const tieneProductosActivos = (this.productosCount[categoria.id] ?? 0) > 0;
 
+    const ejecutarDelete = () => {
+      this.inventoryService.deleteCategoria(categoria.id).subscribe({
+        next: () => {
+          this.categorias = this.categorias.map(c =>
+            c.id === categoria.id ? { ...c, activo: false } : c
+          );
+          this.productosCount[categoria.id] = 0;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.error = 'No se pudo eliminar. Intenta de nuevo.';
+          this.cdr.detectChanges();
+        },
+      });
+    };
+
     if (tieneProductosActivos) {
       this.confirmService.deleteWithInput({
         nombre: categoria.nombre,
-        onAccept: () => {
-          this.inventoryService.deleteCategoria(categoria.id).subscribe({
-            next: () => {
-              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-              delete this.productosCount[categoria.id];
-            },
-            error: () => {
-              this.error = 'No se pudo eliminar. Intenta de nuevo.';
-            },
-          });
-        },
+        onAccept: ejecutarDelete,
       });
     } else {
       this.confirmService.delete({
         nombre: categoria.nombre,
-        onAccept: () => {
-          this.inventoryService.deleteCategoria(categoria.id).subscribe({
-            next: () => {
-              this.categorias = this.categorias.filter(c => c.id !== categoria.id);
-              delete this.productosCount[categoria.id];
-            },
-            error: () => {
-              this.error = 'No se pudo eliminar. Intenta de nuevo.';
-            },
-          });
-        },
+        onAccept: ejecutarDelete,
       });
     }
+  }
+
+  // método nuevo:
+  onReactivarCategoria(categoria: Categoria) {
+    this.inventoryService.updateCategoria(categoria.id, { activo: true }).subscribe({
+      next: (actualizada) => {
+        this.categorias = this.categorias.map(c =>
+          c.id === actualizada.id ? actualizada : c
+        );
+        // Busca productos inactivos de esta categoría
+        const inactivos = this.productos.filter(
+          p => p.categoria.id === actualizada.id && !p.activo
+        );
+        if (inactivos.length > 0) {
+          setTimeout(() => {
+            this.reactivarService.open({
+              productos: inactivos,
+              onDone: (reactivados) => {
+                if (reactivados.length > 0) {
+                  this.productos = this.productos.map(p =>
+                    reactivados.find(r => r.id === p.id) ?? p
+                  );
+                  this.productosCount[actualizada.id] =
+                    this.productos.filter(
+                      p => p.categoria.id === actualizada.id && p.activo
+                    ).length;
+                  this.cdr.detectChanges();
+                }
+              },
+            });
+          });
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'No se pudo reactivar. Intenta de nuevo.';
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

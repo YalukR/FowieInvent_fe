@@ -72,10 +72,12 @@
         </ng-template>
 
         <ng-template pTemplate="body" let-producto>
-            <tr>
-                <td class="font-medium">{{ producto.nombre }}</td>
+            <tr [ngClass]="{'opacity-50': !producto.activo}">
+                <td class="font-medium" [ngClass]="{'text-muted-color': !producto.activo}">
+                    {{ producto.nombre }}
+                </td>
                 <td class="hidden md:table-cell">
-                    <span class="text-sm px-2 py-1 border-round"
+                    <span class="text-sm px-2 py-1 border-round" [ngClass]="{'text-muted-color': !producto.activo}"
                         style="background: var(--surface-100); border: 1px solid var(--surface-border);">
                         {{ producto.categoria.nombre }}
                     </span>
@@ -83,8 +85,8 @@
                 <td class="hidden md:table-cell text-muted-color text-sm">{{ producto.unidad_medida }}</td>
                 <td style="text-align:center">
                     <span class="font-bold" [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
-                                           producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
-                                           'var(--p-green-500)'">
+                                   producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
+                                   'var(--p-green-500)'">
                         {{ producto.stock_actual }}
                     </span>
                 </td>
@@ -105,11 +107,16 @@
                             (onClick)="openDetail(producto)" />
                         <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
                             (onClick)="openEdit(producto)" />
+                        @if (producto.activo) {
                         <p-button icon="pi pi-arrow-right-arrow-left" severity="secondary" [text]="true" size="small"
                             pTooltip="Registrar movimiento" tooltipPosition="top"
                             (onClick)="openMovimiento(producto)" />
                         <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
                             (onClick)="onDelete(producto)" />
+                        } @else {
+                        <p-button icon="pi pi-undo" severity="success" [text]="true" size="small"
+                            pTooltip="Reactivar producto" tooltipPosition="top" (onClick)="onReactivar(producto)" />
+                        }
                     </div>
                 </td>
             </tr>

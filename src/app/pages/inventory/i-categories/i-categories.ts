@@ -1,5 +1,4 @@
-// src/app/pages/inventory/i-categories/i-categories.ts
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -16,7 +15,7 @@ import { InventoryStateService } from '@/app/core/service/inventory-state.servic
 import { ConfirmService } from '../../../core/service/confirm.service';
 import { Categoria } from '../../../core/models/inventory.models';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-i-categories',
@@ -29,30 +28,26 @@ import { Subscription } from 'rxjs';
   templateUrl: './i-categories.html',
   styleUrl: './i-categories.scss',
 })
-export class ICategories implements OnInit {
+export class ICategories implements OnInit, OnDestroy {
 
   private inventoryService = inject(InventoryService);
-  private inventoryState = inject(InventoryStateService)
+  private inventoryState = inject(InventoryStateService);
   private confirmService = inject(ConfirmService);
-  private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
 
   private sub = new Subscription();
 
-  // ── Estado ────────────────────────────────────────────────────────────────
   categorias: Categoria[] = [];
+  productosCount: Record<string, number | undefined> = {}; 
   loading = true;
   error: string | null = null;
   skeletonRows = Array(8);
 
-  // ── Modal ─────────────────────────────────────────────────────────────────
   modalVisible = false;
   selectedCategoria: Categoria | null = null;
 
-  // ── Init ──────────────────────────────────────────────────────────────────
-
   ngOnInit() {
-    this.loadCategorias();
+    this.loadData();
     this.sub.add(
       this.inventoryState.openCreateCategoria$.subscribe(() => this.openCreate())
     );
@@ -60,32 +55,34 @@ export class ICategories implements OnInit {
 
   ngOnDestroy() { this.sub.unsubscribe(); }
 
-  loadCategorias() {
+  loadData() {
     this.loading = true;
     this.error = null;
-    this.inventoryService.getCategorias().subscribe({
-      next: categorias => {
+    forkJoin({
+      categorias: this.inventoryService.getCategorias(),
+      productos: this.inventoryService.getProductos(),
+    }).subscribe({
+      next: ({ categorias, productos }) => {
         this.categorias = categorias;
+        this.productosCount = {};
+        for (const p of productos) {
+          const cid = p.categoria?.id;
+          if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
+        }
         this.loading = false;
-        this.cdr.markForCheck();
       },
       error: () => {
         this.error = 'No se pudieron cargar las categorías.';
         this.loading = false;
-        this.cdr.markForCheck();
       },
     });
   }
-
-  // ── Navegación ────────────────────────────────────────────────────────────
 
   openDetail(categoria: Categoria) {
     this.router.navigate(['/system/inventory/categories', categoria.id], {
       state: { categoria }
     });
   }
-
-  // ── Modal ─────────────────────────────────────────────────────────────────
 
   openCreate() {
     this.selectedCategoria = null;
@@ -112,12 +109,11 @@ export class ICategories implements OnInit {
       ];
     } else {
       this.categorias = [categoria, ...this.categorias];
+      this.productosCount[categoria.id] = 0;
     }
     this.modalVisible = false;
     this.selectedCategoria = null;
   }
-
-  // ── Eliminar ──────────────────────────────────────────────────────────────
 
   onDelete(categoria: Categoria) {
     this.confirmService.delete({
@@ -126,6 +122,7 @@ export class ICategories implements OnInit {
         this.inventoryService.deleteCategoria(categoria.id).subscribe({
           next: () => {
             this.categorias = this.categorias.filter(c => c.id !== categoria.id);
+            delete this.productosCount[categoria.id];
           },
           error: () => {
             this.error = 'No se pudo eliminar. Intenta de nuevo.';

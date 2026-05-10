@@ -61,16 +61,11 @@ export class InventoryService {
         return this.http.delete<void>(`${this.base}/inventory/productos/${id}/`);
     }
 
-    activarProductos(ids: string[]): Observable<void> {
-        return new Observable(observer => {
-            const calls = ids.map(id =>
-                this.http.patch(`${this.base}/inventory/productos/${id}/`, { activo: true })
-            );
-            forkJoin(calls).subscribe({
-                next: () => { observer.next(); observer.complete(); },
-                error: (e) => observer.error(e),
-            });
-        });
+    activarProductos(ids: string[]): Observable<{ activados: number }> {
+        return this.http.post<{ activados: number }>(
+            `${this.base}/inventory/productos/activar-batch/`,
+            { ids }
+        );
     }
 
     // ── Movimientos ───────────────────────────────────────────────────────────

@@ -1,20 +1,15 @@
 <div class="flex flex-col gap-4">
 
-    <!-- Nav con acciones proyectadas -->
+    <!-- Nav -->
     <app-i-nav>
-        <p-button label="Nuevo producto" icon="pi pi-plus" size="small" (onClick)="openCreate()">
-        </p-button>
+        <p-button label="Nuevo producto" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
         <p-button label="Exportar" icon="pi pi-file-export" severity="secondary" [outlined]="true" size="small"
-            (onClick)="loadProductos()">
-        </p-button>
+            (onClick)="loadProductos()" />
     </app-i-nav>
-
-    <!-- Conteo -->
-    <p class="text-muted-color text-sm m-0">{{ productos.length }} productos registrados</p>
 
     <!-- Error -->
     @if (error) {
-    <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    <p-message severity="error" [text]="error" styleClass="w-full" />
     }
 
     <!-- Skeleton -->
@@ -23,7 +18,7 @@
         <div class="flex justify-content-end mb-2">
             <p-skeleton width="14rem" height="2rem" borderRadius="6px" />
         </div>
-        @for (row of skeletonRows; track row) {
+        @for (row of skeletonRows; track $index) {
         <div class="flex align-items-center gap-3 py-2" style="border-bottom: 1px solid var(--surface-border);">
             <p-skeleton width="30%" height="1rem" borderRadius="4px" />
             <p-skeleton width="15%" height="1rem" borderRadius="4px" class="hidden md:block" />
@@ -38,12 +33,19 @@
 
     <!-- Tabla -->
     @if (!loading) {
-    <p-table [value]="productos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
+    <p-table [value]="productosFiltrados" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
         [globalFilterFields]="['nombre', 'categoria.nombre', 'unidad_medida']" dataKey="id" styleClass="p-datatable-sm"
         [tableStyle]="{ 'width': '100%' }" [scrollable]="true" scrollHeight="flex" #dt>
 
         <ng-template pTemplate="caption">
-            <div class="flex justify-content-end">
+            <div class="flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div class="flex align-items-center gap-3">
+                    <span class="text-muted-color text-sm">
+                        {{ productosFiltrados.length }} de {{ productos.length }} productos
+                    </span>
+                    <p-selectbutton [options]="filtroOpciones" [(ngModel)]="filtroActivo" optionLabel="label"
+                        optionValue="value" [allowEmpty]="false" size="small" />
+                </div>
                 <p-iconfield>
                     <p-inputicon styleClass="pi pi-search" />
                     <input pInputText type="text" placeholder="Buscar producto..."
@@ -54,9 +56,7 @@
 
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="nombre">
-                    Nombre <p-sortIcon field="nombre" />
-                </th>
+                <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre" /></th>
                 <th pSortableColumn="categoria.nombre" class="hidden md:table-cell">
                     Categoría <p-sortIcon field="categoria.nombre" />
                 </th>
@@ -67,9 +67,7 @@
                 <th class="hidden md:table-cell" style="text-align:center">Stock mín.</th>
                 <th style="text-align:center">Estado</th>
                 <th class="hidden md:table-cell" style="text-align:center">Activo</th>
-                <th pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">
-                    Acciones
-                </th>
+                <th pFrozenColumn alignFrozen="right" style="text-align:center; min-width: 7rem;">Acciones</th>
             </tr>
         </ng-template>
 
@@ -82,13 +80,11 @@
                         {{ producto.categoria.nombre }}
                     </span>
                 </td>
-                <td class="hidden md:table-cell text-muted-color text-sm">
-                    {{ producto.unidad_medida }}
-                </td>
+                <td class="hidden md:table-cell text-muted-color text-sm">{{ producto.unidad_medida }}</td>
                 <td style="text-align:center">
                     <span class="font-bold" [style.color]="producto.stock_actual === 0 ? 'var(--p-red-500)' :
-                                       producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
-                                       'var(--p-green-500)'">
+                                           producto.stock_actual <= producto.stock_minimo ? 'var(--p-orange-500)' :
+                                           'var(--p-green-500)'">
                         {{ producto.stock_actual }}
                     </span>
                 </td>
@@ -96,8 +92,7 @@
                     {{ producto.stock_minimo }}
                 </td>
                 <td style="text-align:center">
-                    <p-tag [value]="getStockLabel(producto)" [severity]="getStockSeverity(producto)">
-                    </p-tag>
+                    <p-tag [value]="getStockLabel(producto)" [severity]="getStockSeverity(producto)" />
                 </td>
                 <td class="hidden md:table-cell" style="text-align:center">
                     <i class="pi"
@@ -121,7 +116,7 @@
             <tr>
                 <td colspan="8" class="text-center text-muted-color py-6">
                     <i class="pi pi-box text-4xl mb-3 block opacity-30"></i>
-                    No hay productos registrados.
+                    No hay productos {{ filtroActivo !== 'todos' ? filtroActivo : 'registrados' }}.
                 </td>
             </tr>
         </ng-template>
@@ -133,5 +128,4 @@
 
 <!-- Modal crear/editar -->
 <app-i-modal [visible]="modalVisible" [producto]="selectedProducto" (closed)="onModalClosed()"
-    (saved)="onModalSaved($event)">
-</app-i-modal>
+    (saved)="onModalSaved($event)" />

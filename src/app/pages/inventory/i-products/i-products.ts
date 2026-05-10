@@ -1,4 +1,3 @@
-// src/app/pages/inventory/i-products/i-products.ts
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -9,6 +8,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { FormsModule } from '@angular/forms';
 import { IModal } from './i-pmodal/i-modal';
 import { InventoryService } from '../../../core/service/inventory.service';
 import { ConfirmService } from '../../../core/service/confirm.service';
@@ -22,9 +23,9 @@ import { Router } from '@angular/router';
   selector: 'app-i-products',
   standalone: true,
   imports: [
-    CommonModule, TableModule, TagModule, ButtonModule,
+    CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
-    SkeletonModule, MessageModule, IModal, INav,
+    SkeletonModule, MessageModule, SelectButtonModule, IModal, INav,
   ],
   templateUrl: './i-products.html',
   styleUrl: './i-products.scss',
@@ -35,20 +36,29 @@ export class IProducts implements OnInit, OnDestroy {
   private confirmService = inject(ConfirmService);
   private inventoryState = inject(InventoryStateService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
   private sub = new Subscription();
-  private router = inject(Router)
 
-  // ── Estado ────────────────────────────────────────────────────────────────
   productos: Producto[] = [];
   loading = true;
   error: string | null = null;
   skeletonRows = Array(10);
 
-  // ── Modal ─────────────────────────────────────────────────────────────────
   modalVisible = false;
   selectedProducto: Producto | null = null;
 
-  // ── Init ──────────────────────────────────────────────────────────────────
+  filtroActivo: 'todos' | 'activos' | 'inactivos' = 'todos';
+  filtroOpciones = [
+    { label: 'Todos', value: 'todos' },
+    { label: 'Activos', value: 'activos' },
+    { label: 'Inactivos', value: 'inactivos' },
+  ];
+
+  get productosFiltrados(): Producto[] {
+    if (this.filtroActivo === 'activos') return this.productos.filter(p => p.activo);
+    if (this.filtroActivo === 'inactivos') return this.productos.filter(p => !p.activo);
+    return this.productos;
+  }
 
   ngOnInit() {
     this.loadProductos();
@@ -57,9 +67,7 @@ export class IProducts implements OnInit, OnDestroy {
     );
   }
 
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
+  ngOnDestroy() { this.sub.unsubscribe(); }
 
   loadProductos() {
     this.loading = true;
@@ -68,17 +76,15 @@ export class IProducts implements OnInit, OnDestroy {
       next: productos => {
         this.productos = productos;
         this.loading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'No se pudieron cargar los productos.';
         this.loading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
     });
   }
-
-  // ── Modal ─────────────────────────────────────────────────────────────────
 
   openCreate() {
     this.selectedProducto = null;
@@ -116,8 +122,6 @@ export class IProducts implements OnInit, OnDestroy {
     this.selectedProducto = null;
   }
 
-  // ── Eliminar ──────────────────────────────────────────────────────────────
-
   onDelete(producto: Producto) {
     this.confirmService.delete({
       nombre: producto.nombre,
@@ -133,8 +137,6 @@ export class IProducts implements OnInit, OnDestroy {
       }
     });
   }
-
-  // ── Helpers ───────────────────────────────────────────────────────────────
 
   getStockSeverity(producto: Producto): 'success' | 'warn' | 'danger' {
     if (producto.stock_actual === 0) return 'danger';

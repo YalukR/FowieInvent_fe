@@ -39,6 +39,13 @@ export class InventoryService {
         return this.http.delete<void>(`${this.base}/inventory/categorias/${id}/`);
     }
 
+    reactivarCategoria(id: string): Observable<{ categoria: Categoria; productos_inactivos: Producto[] }> {
+        return this.http.post<{ categoria: Categoria; productos_inactivos: Producto[] }>(
+            `${this.base}/inventory/categorias/${id}/reactivar/`,
+            {}
+        );
+    }
+
     // ── Productos ─────────────────────────────────────────────────────────────
 
     getProductos(): Observable<Producto[]> {

@@ -7,6 +7,7 @@ export default [
         component: Pos,
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./pos').then(m => m.Pos) },
         ]
     },
 ] as Routes;

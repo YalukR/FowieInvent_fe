@@ -24,7 +24,16 @@ export const appRoutes: Routes = [
             },
             { 
                 path: 'inventory', 
-                loadChildren: () => import('./app/pages/inventory/inventory.routes') },
+                loadChildren: () => import('./app/pages/inventory/inventory.routes') 
+            },
+            { 
+                path: 'pos', 
+                loadChildren: () => import('./app/pages/pos/pos.routes') 
+            },
+            { 
+                path: 'employees', 
+                loadChildren: () => import('./app/pages/employees/employees.routes') 
+            },
         ],
     },
 

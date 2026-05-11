@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -33,6 +33,7 @@ export class ICdetail implements OnInit, OnDestroy {
     private inventoryState = inject(InventoryStateService);
     private reactivarService = inject(ReactivarService);
     private sub = new Subscription();
+    private cdr = inject(ChangeDetectorRef);
 
     categoria: Categoria | null = null;
     productos: Producto[] = [];
@@ -75,10 +76,12 @@ export class ICdetail implements OnInit, OnDestroy {
                     this.productos = productos.filter(p => p.categoria.id === id);
                 }
                 this.loading = false;
+                this.cdr.detectChanges(); // 👈
             },
             error: () => {
                 this.error = 'No se pudo cargar la información.';
                 this.loading = false;
+                this.cdr.detectChanges(); // 👈
             },
         });
     }
@@ -89,10 +92,12 @@ export class ICdetail implements OnInit, OnDestroy {
             next: productos => {
                 this.productos = productos.filter(p => p.categoria.id === categoriaId);
                 this.loading = false;
+                this.cdr.detectChanges(); // 👈
             },
             error: () => {
                 this.error = 'No se pudieron cargar los productos.';
                 this.loading = false;
+                this.cdr.detectChanges(); // 👈
             },
         });
     }

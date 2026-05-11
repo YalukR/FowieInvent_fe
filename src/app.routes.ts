@@ -1,4 +1,3 @@
-// app.routes.ts
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Landing } from './app/pages/landing/landing';
@@ -33,6 +32,14 @@ export const appRoutes: Routes = [
             { 
                 path: 'employees', 
                 loadChildren: () => import('./app/pages/employees/employees.routes') 
+            },
+            { 
+                path: 'my-business', 
+                loadChildren: () => import('./app/pages/my-business/my-business.routes') 
+            },
+            { 
+                path: 'rbac', 
+                loadChildren: () => import('./app/pages/rbac/rbac.routes') 
             },
         ],
     },

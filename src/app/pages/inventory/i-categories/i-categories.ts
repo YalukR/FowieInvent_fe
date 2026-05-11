@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -15,11 +15,10 @@ import { ICmodal } from './i-cmodal/i-cmodal';
 import { InventoryService } from '../../../core/service/inventory.service';
 import { InventoryStateService } from '@/app/core/service/inventory-state.service';
 import { ConfirmService } from '../../../core/service/confirm.service';
-import { Categoria } from '../../../core/models/inventory.models';
+import { Categoria, Producto } from '../../../core/models/inventory.models';
 import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { ReactivarService } from './reactivar-productos-dialog/reactivar-productos-dialog';
-import { Producto } from '../../../core/models/inventory.models';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
@@ -28,8 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
-    SkeletonModule, MessageModule, SelectButtonModule, INav, ICmodal,
-    TooltipModule,
+    SkeletonModule, MessageModule, SelectButtonModule, TooltipModule, INav, ICmodal,
   ],
   templateUrl: './i-categories.html',
   styleUrl: './i-categories.scss',
@@ -37,17 +35,16 @@ import { TooltipModule } from 'primeng/tooltip';
 export class ICategories implements OnInit, OnDestroy {
 
   private reactivarService = inject(ReactivarService);
-
   private inventoryService = inject(InventoryService);
   private inventoryState = inject(InventoryStateService);
   private confirmService = inject(ConfirmService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-
   private sub = new Subscription();
+  private ngZone = inject(NgZone)
 
   categorias: Categoria[] = [];
-  productos: Producto[] = []
+  productos: Producto[] = [];
   productosCount: Record<string, number | undefined> = {};
   loading = true;
   error: string | null = null;
@@ -88,11 +85,7 @@ export class ICategories implements OnInit, OnDestroy {
       next: ({ categorias, productos }) => {
         this.categorias = categorias;
         this.productos = productos;
-        this.productosCount = {};
-        for (const p of productos) {
-          const cid = p.categoria?.id;
-          if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
-        }
+        this.recalcularCount(productos);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -102,6 +95,43 @@ export class ICategories implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  private recalcularCount(productos: Producto[]) {
+    this.productosCount = {};
+    for (const p of productos) {
+      const cid = p.categoria?.id;
+      if (cid) this.productosCount[cid] = (this.productosCount[cid] ?? 0) + 1;
+    }
+  }
+
+  private abrirReactivar(actualizada: Categoria, productosInactivos: Producto[]) {
+    this.categorias = this.categorias.map(c =>
+      c.id === actualizada.id ? actualizada : c
+    );
+    this.cdr.detectChanges();
+
+    if (productosInactivos.length > 0) {
+      setTimeout(() => {
+        this.ngZone.run(() => {
+          this.reactivarService.open({
+            productos: productosInactivos,
+            onDone: (reactivados) => {
+              if (reactivados.length > 0) {
+                this.productos = this.productos.map(p =>
+                  reactivados.find(r => r.id === p.id) ?? p
+                );
+                this.productosCount[actualizada.id] =
+                  this.productos.filter(
+                    p => p.categoria.id === actualizada.id && p.activo
+                  ).length;
+                this.cdr.detectChanges();
+              }
+            },
+          });
+        });
+      });
+    }
   }
 
   openDetail(categoria: Categoria) {
@@ -145,28 +175,15 @@ export class ICategories implements OnInit, OnDestroy {
     this.selectedCategoria = null;
 
     if (seActivo) {
-      const inactivos = this.productos.filter(
-        p => p.categoria.id === categoriaActualizada.id && !p.activo
-      );
-      if (inactivos.length > 0) {
-        setTimeout(() => {
-          this.reactivarService.open({
-            productos: inactivos,
-            onDone: (reactivados) => {
-              if (reactivados.length > 0) {
-                this.productos = this.productos.map(p =>
-                  reactivados.find(r => r.id === p.id) ?? p
-                );
-                this.productosCount[categoriaActualizada.id] =
-                  this.productos.filter(
-                    p => p.categoria.id === categoriaActualizada.id && p.activo
-                  ).length;
-                this.cdr.detectChanges();
-              }
-            },
-          });
-        });
-      }
+      this.inventoryService.reactivarCategoria(categoriaActualizada.id).subscribe({
+        next: ({ categoria, productos_inactivos }) => {
+          this.abrirReactivar(categoria, productos_inactivos);
+        },
+        error: () => {
+          this.error = 'No se pudo verificar los productos. Intenta de nuevo.';
+          this.cdr.detectChanges();
+        },
+      });
     }
   }
 
@@ -202,37 +219,10 @@ export class ICategories implements OnInit, OnDestroy {
     }
   }
 
-  // método nuevo:
   onReactivarCategoria(categoria: Categoria) {
-    this.inventoryService.updateCategoria(categoria.id, { activo: true }).subscribe({
-      next: (actualizada) => {
-        this.categorias = this.categorias.map(c =>
-          c.id === actualizada.id ? actualizada : c
-        );
-        // Busca productos inactivos de esta categoría
-        const inactivos = this.productos.filter(
-          p => p.categoria.id === actualizada.id && !p.activo
-        );
-        if (inactivos.length > 0) {
-          setTimeout(() => {
-            this.reactivarService.open({
-              productos: inactivos,
-              onDone: (reactivados) => {
-                if (reactivados.length > 0) {
-                  this.productos = this.productos.map(p =>
-                    reactivados.find(r => r.id === p.id) ?? p
-                  );
-                  this.productosCount[actualizada.id] =
-                    this.productos.filter(
-                      p => p.categoria.id === actualizada.id && p.activo
-                    ).length;
-                  this.cdr.detectChanges();
-                }
-              },
-            });
-          });
-        }
-        this.cdr.detectChanges();
+    this.inventoryService.reactivarCategoria(categoria.id).subscribe({
+      next: ({ categoria: actualizada, productos_inactivos }) => {
+        this.abrirReactivar(actualizada, productos_inactivos);
       },
       error: () => {
         this.error = 'No se pudo reactivar. Intenta de nuevo.';

@@ -1,5 +1,4 @@
-// src/app/shared/reactivar-productos-dialog/reactivar-productos-dialog.ts
-import { Component, inject, OnInit, OnDestroy, Injectable } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, Injectable, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -86,6 +85,7 @@ export class ReactivarService {
 export class ReactivarProductosDialog implements OnInit, OnDestroy {
   private reactivarService = inject(ReactivarService);
   private inventoryService = inject(InventoryService);
+  private cdr = inject(ChangeDetectorRef)
   private sub = new Subscription();
 
   visible = false;
@@ -100,7 +100,7 @@ export class ReactivarProductosDialog implements OnInit, OnDestroy {
       this.reactivarService.open$.subscribe(opts => {
         if (opts) {
           this.productos = opts.productos;
-          this.seleccionados = opts.productos.map(p => p.id); // todos pre-seleccionados
+          this.seleccionados = opts.productos.map(p => p.id);
           this.onDone = opts.onDone;
           this.error = null;
           this.loading = false;
@@ -108,6 +108,7 @@ export class ReactivarProductosDialog implements OnInit, OnDestroy {
         } else {
           this.visible = false;
         }
+        this.cdr.detectChanges()
       })
     );
   }
@@ -126,6 +127,7 @@ export class ReactivarProductosDialog implements OnInit, OnDestroy {
           .map(p => ({ ...p, activo: true }));
         this.loading = false;
         this.visible = false;
+        this.cdr.detectChanges()
         this.onDone?.(reactivados);
         this.reactivarService.close();
       },
@@ -138,6 +140,7 @@ export class ReactivarProductosDialog implements OnInit, OnDestroy {
 
   onDejar() {
     this.visible = false;
+        this.cdr.detectChanges()
     this.onDone?.([]);
     this.reactivarService.close();
   }

@@ -1,9 +1,9 @@
 <div class="flex flex-col gap-4">
 
     <!-- Nav -->
-    <app-i-nav>
+    <app-nav [items]="navItems">
         <p-button label="Nueva categoría" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
-    </app-i-nav>
+    </app-nav>
 
     <!-- Error -->
     @if (error) {

@@ -1,16 +1,13 @@
 <div class="flex flex-col gap-4">
 
-    <!-- Nav -->
-    <app-i-nav>
+    <app-nav [items]="navItems">
         @if (producto && !loading) {
-        <p-button label="Editar" icon="pi pi-pencil" size="small" (onClick)="openEdit()">
-        </p-button>
+        <p-button label="Editar" icon="pi pi-pencil" size="small" (onClick)="openEdit()" />
         <p-button label="Movimiento" icon="pi pi-arrow-right-arrow-left" severity="secondary" size="small"
             (onClick)="openMovimiento()" />
-        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="onDelete()">
-        </p-button>
+        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="onDelete()" />
         }
-    </app-i-nav>
+    </app-nav>
 
     <!-- Error -->
     @if (error) {

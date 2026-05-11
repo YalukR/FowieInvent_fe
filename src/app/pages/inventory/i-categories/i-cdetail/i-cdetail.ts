@@ -7,7 +7,6 @@ import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
-import { INav } from '../../i-nav/i-nav';
 import { ICmodal } from '../i-cmodal/i-cmodal';
 import { InventoryService } from '../../../../core/service/inventory.service';
 import { ConfirmService } from '../../../../core/service/confirm.service';
@@ -15,13 +14,14 @@ import { InventoryStateService } from '../../../../core/service/inventory-state.
 import { ReactivarService } from '../reactivar-productos-dialog/reactivar-productos-dialog';
 import { Categoria, Producto } from '../../../../core/models/inventory.models';
 import { Subscription, forkJoin } from 'rxjs';
+import { AppNav, NavItem } from '@/app/layout/component/app.nav';
 
 @Component({
     selector: 'app-i-cdetail',
     standalone: true,
     imports: [
         CommonModule, ButtonModule, SkeletonModule,
-        MessageModule, DividerModule, TagModule, TableModule, INav, ICmodal,
+        MessageModule, DividerModule, TagModule, TableModule, ICmodal, AppNav
     ],
     templateUrl: './i-cdetail.html',
 })
@@ -34,6 +34,13 @@ export class ICdetail implements OnInit, OnDestroy {
     private reactivarService = inject(ReactivarService);
     private sub = new Subscription();
     private cdr = inject(ChangeDetectorRef);
+
+
+    navItems: NavItem[] = [
+        { label: 'Dashboard', icon: 'pi pi-home', route: '/system/inventory/dashboard' },
+        { label: 'Productos', icon: 'pi pi-box', route: '/system/inventory/products' },
+        { label: 'Categorías', icon: 'pi pi-tag', route: '/system/inventory/categories' },
+    ];
 
     categoria: Categoria | null = null;
     productos: Producto[] = [];

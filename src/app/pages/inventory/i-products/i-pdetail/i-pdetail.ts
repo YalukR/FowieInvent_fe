@@ -6,7 +6,6 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
-import { INav } from '../../i-nav/i-nav';
 import { IModal } from '../i-pmodal/i-modal';
 import { InventoryService } from '../../../../core/service/inventory.service';
 import { ConfirmService } from '../../../../core/service/confirm.service';
@@ -15,6 +14,7 @@ import { Producto, Movimiento } from '../../../../core/models/inventory.models';
 import { Subscription } from 'rxjs';
 import { IMovimientoModal } from '../i-movimiento-modal/i-movimiento-modal';
 import { TableModule } from 'primeng/table';
+import { AppNav, NavItem } from '@/app/layout/component/app.nav';
 
 @Component({
     selector: 'app-i-pdetail',
@@ -22,7 +22,7 @@ import { TableModule } from 'primeng/table';
     imports: [
         CommonModule, ButtonModule, TagModule,
         SkeletonModule, MessageModule, DividerModule,
-        INav, IModal, IMovimientoModal, TableModule
+        IModal, IMovimientoModal, TableModule, AppNav
     ],
     templateUrl: './i-pdetail.html',
 })
@@ -35,6 +35,13 @@ export class IPdetail implements OnInit, OnDestroy {
     private inventoryState = inject(InventoryStateService);
     private sub = new Subscription();
     private cdr = inject(ChangeDetectorRef);
+
+    navItems: NavItem[] = [
+        { label: 'Dashboard', icon: 'pi pi-home', route: '/system/inventory/dashboard' },
+        { label: 'Productos', icon: 'pi pi-box', route: '/system/inventory/products' },
+        { label: 'Categorías', icon: 'pi pi-tag', route: '/system/inventory/categories' },
+    ];
+    
     movimientoVisible = false;
 
     producto: Producto | null = null;

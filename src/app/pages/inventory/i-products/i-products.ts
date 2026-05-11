@@ -17,7 +17,7 @@ import { Producto, Movimiento } from '../../../core/models/inventory.models';
 import { IMovimientoModal } from './i-movimiento-modal/i-movimiento-modal';
 import { InventoryStateService } from '@/app/core/service/inventory-state.service';
 import { Subscription } from 'rxjs';
-import { INav } from '../i-nav/i-nav';
+import { AppNav, NavItem } from '@/app/layout/component/app.nav';
 import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -27,13 +27,19 @@ import { TooltipModule } from 'primeng/tooltip';
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
-    SkeletonModule, MessageModule, SelectButtonModule, IModal, INav,
+    SkeletonModule, MessageModule, SelectButtonModule, IModal, AppNav,
     IMovimientoModal, TooltipModule
   ],
   templateUrl: './i-products.html',
   styleUrl: './i-products.scss',
 })
 export class IProducts implements OnInit, OnDestroy {
+
+  navItems: NavItem[] = [
+    { label: 'Dashboard', icon: 'pi pi-home', route: '/system/inventory/dashboard' },
+    { label: 'Productos', icon: 'pi pi-box', route: '/system/inventory/products' },
+    { label: 'Categorías', icon: 'pi pi-tag', route: '/system/inventory/categories' },
+  ];
 
   private inventoryService = inject(InventoryService);
   private confirmService = inject(ConfirmService);

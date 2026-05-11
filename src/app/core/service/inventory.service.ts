@@ -75,6 +75,10 @@ export class InventoryService {
         );
     }
 
+    reactivarProducto(id: string): Observable<Producto> {
+        return this.http.post<Producto>(`${this.base}/inventory/productos/${id}/reactivar/`, {});
+    }
+
     // ── Movimientos ───────────────────────────────────────────────────────────
 
     getMovimientos(): Observable<Movimiento[]> {

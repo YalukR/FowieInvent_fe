@@ -154,7 +154,10 @@ export class IProducts implements OnInit, OnDestroy {
       onAccept: () => {
         this.inventoryService.deleteProducto(producto.id).subscribe({
           next: () => {
-            this.productos = this.productos.filter(p => p.id !== producto.id);
+            this.productos = this.productos.map(p =>
+              p.id === producto.id ? { ...p, activo: false } : p
+            );
+            this.cdr.detectChanges();
           },
           error: () => {
             this.error = 'No se pudo eliminar. Intenta de nuevo.';
@@ -165,15 +168,19 @@ export class IProducts implements OnInit, OnDestroy {
   }
 
   onReactivar(producto: Producto) {
-    this.inventoryService.updateProducto(producto.id, { activo: true }).subscribe({
+    this.inventoryService.reactivarProducto(producto.id).subscribe({
       next: (actualizado) => {
         this.productos = this.productos.map(p =>
           p.id === actualizado.id ? actualizado : p
         );
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.error = 'No se pudo reactivar. Intenta de nuevo.';
+      error: (err) => {
+        if (err.status === 409) {
+          this.error = err.error?.error ?? 'La categoría está inactiva. Actívala primero desde el dashboard de categorías.';
+        } else {
+          this.error = 'No se pudo reactivar. Intenta de nuevo.';
+        }
         this.cdr.detectChanges();
       },
     });

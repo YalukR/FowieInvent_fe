@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -34,6 +34,7 @@ export class IPdetail implements OnInit, OnDestroy {
     private confirmService = inject(ConfirmService);
     private inventoryState = inject(InventoryStateService);
     private sub = new Subscription();
+    private cdr = inject(ChangeDetectorRef);
     movimientoVisible = false;
 
     producto: Producto | null = null;
@@ -85,8 +86,12 @@ export class IPdetail implements OnInit, OnDestroy {
                     (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
                 );
                 this.loadingMovimientos = false;
+                this.cdr.detectChanges(); // 👈
             },
-            error: () => { this.loadingMovimientos = false; },
+            error: () => {
+                this.loadingMovimientos = false;
+                this.cdr.detectChanges(); // 👈
+            },
         });
     }
 

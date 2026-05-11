@@ -1,10 +1,5 @@
 <div class="flex flex-col gap-4">
 
-    <!-- Nav -->
-    <app-nav [items]="navItems">
-        <p-button label="Nueva categoría" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
-    </app-nav>
-
     <!-- Error -->
     @if (error) {
     <p-message severity="error" [text]="error" styleClass="w-full" />
@@ -28,6 +23,9 @@
 
     <!-- Tabla -->
     @if (!loading) {
+    <span class="text-muted-color text-sm">
+        {{ categoriasFiltradas.length }} de {{ categorias.length }} categorías
+    </span>
     <p-table [value]="categoriasFiltradas" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
         [globalFilterFields]="['nombre']" dataKey="id" styleClass="p-datatable-sm" [tableStyle]="{ 'width': '100%' }"
         #dt>
@@ -35,17 +33,21 @@
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between gap-3 flex-wrap">
                 <div class="flex align-items-center gap-3">
-                    <span class="text-muted-color text-sm">
-                        {{ categoriasFiltradas.length }} de {{ categorias.length }} categorías
-                    </span>
                     <p-selectbutton [options]="filtroOpciones" [(ngModel)]="filtroActivo" optionLabel="label"
                         optionValue="value" [allowEmpty]="false" size="small" />
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input pInputText type="text" placeholder="Buscar categoría..."
+                            (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+                    </p-iconfield>
                 </div>
-                <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" placeholder="Buscar categoría..."
-                        (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
-                </p-iconfield>
+                <div class="flex align-items-center gap-2 ml-auto">
+                    <div class="hidden md:flex gap-2">
+                        @if(authService.tienePermiso('gestionar_categorias')) {
+                        <p-button label="Nueva categoría" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
+                        }
+                    </div>
+                </div>
             </div>
         </ng-template>
 
@@ -76,14 +78,20 @@
                     <div class="flex gap-1 justify-content-center">
                         <p-button icon="pi pi-eye" severity="secondary" [text]="true" size="small"
                             (onClick)="openDetail(categoria)" />
+                        @if(authService.tienePermiso('gestionar_categorias')) {
                         <p-button icon="pi pi-pencil" severity="secondary" [text]="true" size="small"
                             (onClick)="openEdit(categoria)" />
+                        }
                         @if (categoria.activo) {
+                        @if(authService.tienePermiso('gestionar_categorias')) {
                         <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
                             (onClick)="onDelete(categoria)" />
+                        }
                         } @else {
+                        @if(authService.tienePermiso('gestionar_categorias')) {
                         <p-button icon="pi pi-undo" severity="success" [text]="true" size="small" pTooltip="Reactivar"
                             tooltipPosition="top" (onClick)="onReactivarCategoria(categoria)" />
+                        }
                         }
                     </div>
                 </td>

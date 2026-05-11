@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { ReactivarService } from './reactivar-productos-dialog/reactivar-productos-dialog';
 import { TooltipModule } from 'primeng/tooltip';
-import { AppNav, NavItem } from '@/app/layout/component/app.nav';
+import { AuthService } from '@/app/core/service/auth.service';
 
 @Component({
   selector: 'app-i-categories',
@@ -27,13 +27,14 @@ import { AppNav, NavItem } from '@/app/layout/component/app.nav';
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
-    SkeletonModule, MessageModule, SelectButtonModule, TooltipModule, ICmodal, AppNav,
+    SkeletonModule, MessageModule, SelectButtonModule, TooltipModule, ICmodal, 
   ],
   templateUrl: './i-categories.html',
   styleUrl: './i-categories.scss',
 })
 export class ICategories implements OnInit, OnDestroy {
 
+  authService = inject(AuthService)
   private reactivarService = inject(ReactivarService);
   private inventoryService = inject(InventoryService);
   private inventoryState = inject(InventoryStateService);
@@ -43,11 +44,7 @@ export class ICategories implements OnInit, OnDestroy {
   private sub = new Subscription();
   private ngZone = inject(NgZone)
 
-  navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'pi pi-home', route: '/system/inventory/dashboard' },
-    { label: 'Productos', icon: 'pi pi-box', route: '/system/inventory/products' },
-    { label: 'Categorías', icon: 'pi pi-tag', route: '/system/inventory/categories' },
-  ];
+  navItems = this.authService.getNavItems('inventory')
 
   categorias: Categoria[] = [];
   productos: Producto[] = [];

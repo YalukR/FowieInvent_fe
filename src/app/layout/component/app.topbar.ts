@@ -7,11 +7,12 @@ import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { DrawerModule } from 'primeng/drawer';
 import { AuthService } from '@/app/core/service/auth.service';
+import { AppNotifications } from './app.notifications';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DrawerModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, DrawerModule, AppNotifications],
     template: `
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
@@ -19,15 +20,14 @@ import { AuthService } from '@/app/core/service/auth.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/system">
-                <span class="w-2rem h-2rem border-circle bg-primary flex align-items-center justify-content-center">
-                    <i class="pi pi-box text-white text-xs"></i>
-                </span>
                 <span>FowieInvent</span>
             </a>
         </div>
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
+
+                <app-notifications />
 
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>

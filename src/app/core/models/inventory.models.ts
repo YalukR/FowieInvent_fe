@@ -22,7 +22,9 @@ export interface Producto {
 export interface Movimiento {
     id: string;
     producto: string;
+    producto_nombre?: string;
     usuario: string;
+    usuario_nombre?: string;
     tipo: 'entrada' | 'salida';
     cantidad: number;
     motivo: string;

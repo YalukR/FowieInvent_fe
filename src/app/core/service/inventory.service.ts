@@ -1,7 +1,7 @@
 // src/app/core/service/inventory.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
     Categoria,
@@ -39,6 +39,13 @@ export class InventoryService {
         return this.http.delete<void>(`${this.base}/inventory/categorias/${id}/`);
     }
 
+    reactivarCategoria(id: string): Observable<{ categoria: Categoria; productos_inactivos: Producto[] }> {
+        return this.http.post<{ categoria: Categoria; productos_inactivos: Producto[] }>(
+            `${this.base}/inventory/categorias/${id}/reactivar/`,
+            {}
+        );
+    }
+
     // ── Productos ─────────────────────────────────────────────────────────────
 
     getProductos(): Observable<Producto[]> {
@@ -59,6 +66,17 @@ export class InventoryService {
 
     deleteProducto(id: string): Observable<void> {
         return this.http.delete<void>(`${this.base}/inventory/productos/${id}/`);
+    }
+
+    activarProductos(ids: string[]): Observable<{ activados: number }> {
+        return this.http.post<{ activados: number }>(
+            `${this.base}/inventory/productos/activar-batch/`,
+            { ids }
+        );
+    }
+
+    reactivarProducto(id: string): Observable<Producto> {
+        return this.http.post<Producto>(`${this.base}/inventory/productos/${id}/reactivar/`, {});
     }
 
     // ── Movimientos ───────────────────────────────────────────────────────────

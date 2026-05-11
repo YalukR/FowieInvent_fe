@@ -57,15 +57,39 @@ export class AppMenu {
                             },
                         ]
                     },
-                    { label: 'Punto de venta', icon: 'pi pi-fw pi-shopping-cart', disabled: true },
-                    { label: 'Personal', icon: 'pi pi-fw pi-users', disabled: true },
+                    {
+                        label: 'Punto de venta',
+                        icon: 'pi pi-fw pi-shopping-cart',
+                        path: '/system/pos',
+                        items: [
+                            {
+                                label: 'Dashboard',
+                                icon: 'pi pi-fw pi-home',
+                                path: '/dashboard',
+                                routerLink: ['/system/pos']
+                            },
+                        ]
+                    },
+                    {
+                        label: 'Personal',
+                        icon: 'pi pi-fw pi-users',
+                        path: '/system/employees',
+                        items: [
+                            {
+                                label: 'Dashboard',
+                                icon: 'pi pi-fw pi-home',
+                                path: '/dashboard',
+                                routerLink: ['/system/employees']
+                            },
+                        ]
+                    },
                 ]
             },
             {
                 label: 'Configuración',
                 items: [
-                    { label: 'Mi negocio', icon: 'pi pi-fw pi-building', routerLink: ['/system/bussines'] },
-                    { label: 'Usuarios y roles', icon: 'pi pi-fw pi-shield', routerLink: ['/system/users'] },
+                    { label: 'Mi negocio', icon: 'pi pi-fw pi-building', routerLink: ['/system/my-business'] },
+                    { label: 'Usuarios y roles', icon: 'pi pi-fw pi-shield', routerLink: ['/system/rbac'] },
                 ]
             },
         ];

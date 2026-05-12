@@ -9,8 +9,13 @@ import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AuthService } from '@/app/core/service/auth.service';
+import { Plan } from '@/app/core/models/tenant.models';
+import { TenantService } from '@/app/core/service/tenant.service';
+import { OnInit } from '@angular/core';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
     selector: 'app-register',
@@ -18,7 +23,7 @@ import { AuthService } from '@/app/core/service/auth.service';
     imports: [
         ButtonModule, TagModule, CheckboxModule, InputTextModule, PasswordModule,
         FormsModule, RouterModule, RippleModule, DividerModule, MessageModule,
-        AppFloatingConfigurator
+        AppFloatingConfigurator, SkeletonModule, SelectModule
     ],
     template: `
         <app-floating-configurator />
@@ -67,6 +72,49 @@ import { AuthService } from '@/app/core/service/auth.service';
                         <label class="text-surface-900 dark:text-surface-0 font-medium text-sm">Nombre del negocio</label>
                         <input pInputText type="text" placeholder="Mi Tienda S.A." class="w-full"
                             [(ngModel)]="negocio" [disabled]="loading()" />
+                    </div>
+
+                    <!-- Selección de plan -->
+                    <div class="flex flex-col gap-1">
+                        <label class="text-surface-900 dark:text-surface-0 font-medium text-sm">Plan</label>
+                        @if (loadingPlanes()) {
+                            <p-skeleton width="100%" height="2.75rem" borderRadius="6px" />
+                        } @else {
+                            <p-select
+                                [options]="planes"
+                                [(ngModel)]="planSeleccionado"
+                                optionLabel="nombre"
+                                optionValue="id"
+                                placeholder="Selecciona un plan"
+                                [fluid]="true"
+                                [disabled]="loading()">
+                                <ng-template pTemplate="selectedItem" let-plan>
+                                    @if (plan) {
+                                    <div class="flex align-items-center justify-content-between w-full gap-3">
+                                        <span>{{ plan.nombre }}</span>
+                                        <span class="text-primary font-medium text-sm">
+                                            {{ '$' + plan.precio_mensual }}<span class="text-muted-color font-normal">/mes</span>
+                                        </span>
+                                    </div>
+                                    }
+                                </ng-template>
+                                <ng-template pTemplate="item" let-plan>
+                                    <div class="flex align-items-center justify-content-between w-full gap-3">
+                                        <div>
+                                            <div class="font-medium text-sm">{{ plan.nombre }}</div>
+                                            <div class="text-xs text-muted-color">
+                                                {{ plan.max_usuarios }} usuario{{ plan.max_usuarios > 1 ? 's' : '' }} ·
+                                                {{ plan.max_productos }} productos ·
+                                                {{ plan.max_categorias }} categorías
+                                            </div>
+                                        </div>
+                                        <span class="font-bold text-primary text-sm" style="white-space: nowrap; flex-shrink: 0;">
+                                            {{ '$' + plan.precio_mensual }}<span class="text-xs text-muted-color font-normal">/mes</span>
+                                        </span>
+                                    </div>
+                                </ng-template>
+                            </p-select>
+                        }
                     </div>
 
                     <div class="flex flex-col gap-1">
@@ -219,42 +267,58 @@ import { AuthService } from '@/app/core/service/auth.service';
         </style>
     `
 })
-export class Register {
-    nombre          = '';
-    apellido        = '';
-    email           = '';
-    negocio         = '';
-    password        = '';
+export class Register implements OnInit {
+    nombre = '';
+    apellido = '';
+    email = '';
+    negocio = '';
+    password = '';
     confirmPassword = '';
-    aceptaTerminos  = false;
+    planes: Plan[] = [];
+    planSeleccionado: string | null = null;
+    loadingPlanes = signal(false);
+    aceptaTerminos = false;
 
     loading = signal(false);
-    error   = signal<string | null>(null);
+    error = signal<string | null>(null);
     passwordMismatch = signal(false);
 
-    canSubmit() {
-        return this.aceptaTerminos &&
-               !!this.nombre && !!this.apellido &&
-               !!this.email && !!this.negocio &&
-               !!this.password && !this.loading();
-    }
-
     features = [
-        { icon: 'pi-box',        title: 'Control de inventario en tiempo real', desc: 'Entradas, salidas y alertas de stock bajo con historial completo.' },
-        { icon: 'pi-shield',     title: 'RBAC dinámico por tenant',             desc: 'Cada negocio tiene sus propios roles y permisos completamente aislados.' },
-        { icon: 'pi-chart-line', title: 'Reportes exportables en PDF',          desc: 'Genera reportes de movimientos y stock en segundos.' },
+        { icon: 'pi-box', title: 'Control de inventario en tiempo real', desc: 'Entradas, salidas y alertas de stock bajo con historial completo.' },
+        { icon: 'pi-shield', title: 'RBAC dinámico por tenant', desc: 'Cada negocio tiene sus propios roles y permisos completamente aislados.' },
+        { icon: 'pi-chart-line', title: 'Reportes exportables en PDF', desc: 'Genera reportes de movimientos y stock en segundos.' },
     ];
 
     stats = [
         { val: 'AGPL', label: 'Código abierto' },
         { val: '$500', label: 'MXN / mes' },
-        { val: '99%',  label: 'SLA mensual' },
+        { val: '99%', label: 'SLA mensual' },
     ];
 
     constructor(
         private authService: AuthService,
+        private tenantService: TenantService,
         private router: Router,
-    ) {}
+    ) { }
+
+    ngOnInit() {
+        this.loadingPlanes.set(true);
+        this.tenantService.getPlanes().subscribe({
+            next: planes => {
+                this.planes = planes;
+                this.loadingPlanes.set(false);
+            },
+            error: () => this.loadingPlanes.set(false)
+        });
+    }
+
+    canSubmit() {
+        return this.aceptaTerminos &&
+            !!this.nombre && !!this.apellido &&
+            !!this.email && !!this.negocio &&
+            !!this.password && !!this.planSeleccionado &&
+            !this.loading();
+    }
 
     onRegister(): void {
         this.passwordMismatch.set(false);
@@ -267,11 +331,12 @@ export class Register {
 
         this.loading.set(true);
         this.authService.register({
-            nombre:         this.nombre,
-            apellido:       this.apellido,
-            email:          this.email,
-            password:       this.password,
+            nombre: this.nombre,
+            apellido: this.apellido,
+            email: this.email,
+            password: this.password,
             nombre_negocio: this.negocio,
+            plan_id: this.planSeleccionado!,
         }).subscribe({
             next: () => this.router.navigate(['/system']),
             error: (msg: string) => { this.error.set(msg); this.loading.set(false); },

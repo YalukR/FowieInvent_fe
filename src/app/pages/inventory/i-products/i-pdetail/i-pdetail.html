@@ -1,14 +1,5 @@
 <div class="flex flex-col gap-4">
 
-    <app-nav [items]="navItems">
-        @if (producto && !loading) {
-        <p-button label="Editar" icon="pi pi-pencil" size="small" (onClick)="openEdit()" />
-        <p-button label="Movimiento" icon="pi pi-arrow-right-arrow-left" severity="secondary" size="small"
-            (onClick)="openMovimiento()" />
-        <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="onDelete()" />
-        }
-    </app-nav>
-
     <!-- Error -->
     @if (error) {
     <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
@@ -34,7 +25,15 @@
     <!-- Contenido -->
     @if (!loading && producto) {
     <div class="flex flex-col gap-1">
-        <h2 class="text-2xl font-bold m-0">{{ producto.nombre }}</h2>
+        <div class="flex align-items-center justify-content-between">
+            <h2 class="text-2xl font-bold m-0 flex-1">{{ producto.nombre }}</h2>
+            <div class="flex align-items-center gap-2">
+                <p-button label="Editar" icon="pi pi-pencil" size="small" (onClick)="openEdit()" />
+                <p-button label="Movimiento" icon="pi pi-arrow-right-arrow-left" severity="secondary" size="small"
+                    (onClick)="openMovimiento()" />
+                <p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="onDelete()" />
+            </div>
+        </div>
         <div class="flex align-items-center gap-2 mt-1">
             <p-tag [value]="getStockLabel()" [severity]="getStockSeverity()" />
             <span class="text-muted-color text-sm">
@@ -52,7 +51,9 @@
             <span class="text-xs text-muted-color font-medium uppercase" style="letter-spacing: 0.05em;">
                 Categoría
             </span>
-            <span class="font-medium">{{ producto.categoria.nombre }}</span>
+            <span class="font-medium cursor-pointer hover:underline" (click)="goToCategoria()">
+                {{ producto.categoria.nombre }}
+            </span>
         </div>
 
         <div class="col-12 md:col-6 flex flex-col gap-1 mb-3">

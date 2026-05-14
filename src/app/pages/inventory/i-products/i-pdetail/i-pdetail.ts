@@ -14,7 +14,7 @@ import { Producto, Movimiento } from '../../../../core/models/inventory.models';
 import { Subscription } from 'rxjs';
 import { IMovimientoModal } from '../i-movimiento-modal/i-movimiento-modal';
 import { TableModule } from 'primeng/table';
-import { AppNav, NavItem } from '@/app/layout/component/app.nav';
+import { NavItem } from '@/app/layout/component/app.nav';
 
 @Component({
     selector: 'app-i-pdetail',
@@ -22,7 +22,7 @@ import { AppNav, NavItem } from '@/app/layout/component/app.nav';
     imports: [
         CommonModule, ButtonModule, TagModule,
         SkeletonModule, MessageModule, DividerModule,
-        IModal, IMovimientoModal, TableModule, AppNav
+        IModal, IMovimientoModal, TableModule,
     ],
     templateUrl: './i-pdetail.html',
 })
@@ -41,7 +41,7 @@ export class IPdetail implements OnInit, OnDestroy {
         { label: 'Productos', icon: 'pi pi-box', route: '/system/inventory/products' },
         { label: 'Categorías', icon: 'pi pi-tag', route: '/system/inventory/categories' },
     ];
-    
+
     movimientoVisible = false;
 
     producto: Producto | null = null;
@@ -93,11 +93,11 @@ export class IPdetail implements OnInit, OnDestroy {
                     (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
                 );
                 this.loadingMovimientos = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
             error: () => {
                 this.loadingMovimientos = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
         });
     }
@@ -149,5 +149,12 @@ export class IPdetail implements OnInit, OnDestroy {
             this.loadMovimientos(this.producto.id);
         }
         this.movimientoVisible = false;
+    }
+
+    goToCategoria() {
+        if (!this.producto?.categoria) return;
+        this.router.navigate(['/system/inventory/categories', this.producto.categoria.id], {
+            state: { categoria: this.producto.categoria }
+        });
     }
 }

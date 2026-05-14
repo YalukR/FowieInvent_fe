@@ -33,7 +33,7 @@ import { ConfirmInputDialog } from '@/app/shared/confirm-input-dialog';
         </div>
         <div class="layout-mask"></div>
         <app-speeddial></app-speeddial>
-        <p-toast position="top-right" />           <!-- ← nuevo -->
+        <p-toast position="top-right" />
         <p-confirmdialog />
         <app-reactivar-productos-dialog />
         <app-confirm-input-dialog />

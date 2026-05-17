@@ -7,6 +7,7 @@ export default [
         component: Rbac,
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', loadComponent: () => import('./rbac-dashboard/rbac-dashboard').then(m => m.RbacDashboard) },
             { path: 'dashboard', loadComponent: () => import('./rbac').then(m => m.Rbac) },
         ]
     },

@@ -116,6 +116,15 @@ export class AuthService {
         return items;
     }
 
+    getModulosRaiz(): NavItem[] {
+        const user = this._currentUser();
+        if (!user?.permisos?.length) return [];
+        const raices = ['ver_inventario', 'ver_rbac', 'ver_mi_negocio'];
+        return user.permisos
+            .filter(p => raices.includes(p.codigo))
+            .map(p => ({ label: p.submodulo, icon: p.icono, route: p.ruta }));
+    }
+
     // ── Private ───────────────────────────────────────────────────────────────
 
     private saveSession(res: AuthResponse): void {

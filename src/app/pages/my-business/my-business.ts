@@ -7,7 +7,8 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { MessageModule } from 'primeng/message';
-import { INav } from '../inventory/i-nav/i-nav';
+import { AppNav, NavItem } from '@/app/layout/component/app.nav';
+import { AuthService } from '@/app/core/service/auth.service';
 import localeEs from '@angular/common/locales/es';
 
 registerLocaleData(localeEs);
@@ -21,7 +22,7 @@ registerLocaleData(localeEs);
     TagModule,
     SkeletonModule,
     MessageModule,
-    INav,
+    AppNav,
     DatePipe,
     TitleCasePipe,
   ],
@@ -31,6 +32,11 @@ registerLocaleData(localeEs);
 export class MyBusiness implements OnInit {
   private tenantService = inject(TenantService);
   private cdr = inject(ChangeDetectorRef);
+
+  authService = inject(AuthService)
+
+  navItems = this.authService.getModulosRaiz()
+
 
   tenant: Tenant | null = null;
   modulos: TenantModulo[] = [];

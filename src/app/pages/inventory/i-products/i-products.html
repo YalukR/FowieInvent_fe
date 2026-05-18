@@ -77,8 +77,10 @@
                     {{ producto.nombre }}
                 </td>
                 <td class="hidden md:table-cell">
-                    <span class="text-sm px-2 py-1 border-round" [ngClass]="{'text-muted-color': !producto.activo}"
-                        style="background: var(--surface-100); border: 1px solid var(--surface-border);">
+                    <span class="text-sm px-2 py-1 border-round cursor-pointer hover:underline"
+                        [ngClass]="{'text-muted-color': !producto.activo}"
+                        style="background: var(--surface-100); border: 1px solid var(--surface-border);"
+                        (click)="goToCategoria(producto.categoria.id, producto.categoria)">
                         {{ producto.categoria.nombre }}
                     </span>
                 </td>

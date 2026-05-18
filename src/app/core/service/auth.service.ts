@@ -89,18 +89,11 @@ export class AuthService {
         return localStorage.getItem(this.REFRESH_KEY);
     }
 
-    tienePermiso(codigo: string): boolean {
+    getNavItems(moduloCodigo: string): NavItem[] {
         const user = this._currentUser();
-        if (!user) return false;
-        if (user.rol === 'Owner') return true;
-        return user.permisos?.some(p => p.codigo === codigo) ?? false;
-    }
-
-    getNavItems(modulo: string): NavItem[] {
-        const user = this._currentUser();
-        if (!user || !user.permisos?.length) return [];
+        if (!user?.permisos?.length) return [];
         return this.deduplicarNavItems(
-            user.permisos.filter(p => p.modulo === modulo)
+            user.permisos.filter(p => p.modulo?.codigo === moduloCodigo)
         );
     }
 
@@ -114,6 +107,32 @@ export class AuthService {
             }
         }
         return items;
+    }
+
+    getModulosRaiz(): NavItem[] {
+        const user = this._currentUser();
+        if (!user?.permisos?.length) return [];
+
+        const vistos = new Set<string>();
+        const items: NavItem[] = [];
+
+        for (const p of user.permisos) {
+            if (!p.modulo || vistos.has(p.modulo.codigo)) continue;
+            vistos.add(p.modulo.codigo);
+            items.push({
+                label: p.modulo.label,
+                icon: p.modulo.icono,
+                route: p.modulo.ruta,
+            });
+        }
+        return items;
+    }
+
+    tienePermiso(codigo: string): boolean {
+        const user = this._currentUser();
+        if (!user) return false;
+        if (user.rol === 'Owner') return true;
+        return user.permisos?.some(p => p.codigo === codigo) ?? false;
     }
 
     // ── Private ───────────────────────────────────────────────────────────────

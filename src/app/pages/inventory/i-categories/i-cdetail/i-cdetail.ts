@@ -14,14 +14,14 @@ import { InventoryStateService } from '../../../../core/service/inventory-state.
 import { ReactivarService } from '../reactivar-productos-dialog/reactivar-productos-dialog';
 import { Categoria, Producto } from '../../../../core/models/inventory.models';
 import { Subscription, forkJoin } from 'rxjs';
-import { AppNav, NavItem } from '@/app/layout/component/app.nav';
+import { NavItem } from '@/app/layout/component/app.nav';
 
 @Component({
     selector: 'app-i-cdetail',
     standalone: true,
     imports: [
         CommonModule, ButtonModule, SkeletonModule,
-        MessageModule, DividerModule, TagModule, TableModule, ICmodal, AppNav
+        MessageModule, DividerModule, TagModule, TableModule, ICmodal,
     ],
     templateUrl: './i-cdetail.html',
 })
@@ -83,12 +83,12 @@ export class ICdetail implements OnInit, OnDestroy {
                     this.productos = productos.filter(p => p.categoria.id === id);
                 }
                 this.loading = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
             error: () => {
                 this.error = 'No se pudo cargar la información.';
                 this.loading = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
         });
     }
@@ -99,12 +99,12 @@ export class ICdetail implements OnInit, OnDestroy {
             next: productos => {
                 this.productos = productos.filter(p => p.categoria.id === categoriaId);
                 this.loading = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
             error: () => {
                 this.error = 'No se pudieron cargar los productos.';
                 this.loading = false;
-                this.cdr.detectChanges(); // 👈
+                this.cdr.detectChanges();
             },
         });
     }
@@ -159,5 +159,11 @@ export class ICdetail implements OnInit, OnDestroy {
                 },
             });
         }
+    }
+
+    goToProducto(producto: Producto) {
+        this.router.navigate(['/system/inventory/products', producto.id], {
+            state: { producto }
+        });
     }
 }

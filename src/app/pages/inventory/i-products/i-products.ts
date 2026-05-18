@@ -200,4 +200,10 @@ export class IProducts implements OnInit, OnDestroy {
     if (producto.stock_actual <= producto.stock_minimo) return 'Stock bajo';
     return 'OK';
   }
+
+  goToCategoria(id: string, categoria: any) {
+    this.router.navigate(['/system/inventory/categories', id],{
+      state: { categoria }
+    })
+  }
 }

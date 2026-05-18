@@ -1,4 +1,3 @@
-// src/app/core/models/inventory.models.ts
 export interface Categoria {
     id: string;
     tenant?: string;
